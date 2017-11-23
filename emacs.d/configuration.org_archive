@@ -1,0 +1,231 @@
+#    -*- mode: org -*-
+
+
+Archived entries from file f:/code/personal/dotfiles/emacs.d/configuration.org
+
+
+* Configure use-package
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2017-11-23 Thu 12:52
+  :ARCHIVE_FILE: f:/code/personal/dotfiles/emacs.d/configuration.org
+  :ARCHIVE_CATEGORY: configuration
+  :END:
+
+Install (if required) and activate 'use-package'.
+
+#+BEGIN_SRC emacs-lisp
+  (unless (package-installed-p 'use-package)
+    (package-install 'use-package))
+
+  (setq use-package-verbose t)
+  (setq use-package-always-ensure t)
+
+  (require 'use-package)
+#+END_SRC
+
+Always compile packages and use the newest available version.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package auto-compile
+    :config (auto-compile-on-load-mode))
+  (setq load-prefer-newer t)
+#+END_SRC
+
+* UI Preferences
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2017-11-23 Thu 12:52
+  :ARCHIVE_FILE: f:/code/personal/dotfiles/emacs.d/configuration.org
+  :ARCHIVE_CATEGORY: configuration
+  :END:
+
+** Tweak window chrome
+
+Remove the menu and scroll bar to free up space.
+
+#+BEGIN_SRC emacs-lisp
+  (tool-bar-mode 0)
+  (menu-bar-mode 0)
+  (when window-system
+    (scroll-bar-mode -1))
+#+END_SRC
+
+Add project name to title frame.
+
+#+BEGIN_SRC emacs-lisp
+  (setq frame-title-format '((:eval (projectile-project-name))))
+#+END_SRC
+
+** Use lambdas
+
+#+BEGIN_SRC emacs-lisp
+  (global-prettify-symbols-mode t)
+#+END_SRC
+
+** Cursor
+
+I like a bar instead of a box.
+
+#+BEGIN_SRC emacs-lisp
+  (setq-default cursor-type 'bar)
+  (set-cursor-color "#ffffff")
+#+END_SRC
+
+** Theme
+
+#+BEGIN_SRC emacs-lisp
+  (use-package monokai-theme)
+
+  (defun tk/apply-monokai-theme ()
+    (load-theme 'monokai t))
+#+END_SRC
+
+If this code is being evaluated by =emacs --daemon=, ensure that each subsequent frame is themed appropriately.
+
+#+BEGIN_SRC emacs-lisp
+  (if (daemonp)
+      (add-hook 'after-make-frame-functions
+                (lambda (frame)
+                  (tk/apply-monokai-theme)))
+    (tk/apply-monokai-theme))
+#+END_SRC
+
+** Fonts
+
+Hack is the current favourite with size 12.
+
+#+BEGIN_SRC emacs-lisp
+  (setq tk/default-font "Hack")
+    (setq tk/default-font-size 12)
+    (setq tk/current-font-size tk/default-font-size)
+
+    (setq tk/font-change-increment 1.1)
+
+    (defun tk/font-code ()
+      "Return a string representing the current font (like 'Hack-14')"
+      (concat tk/default-font "-" (number-to-string tk/current-font-size)))
+
+    (defun tk/set-font-size ()
+      "Set the font to `tk/default-font' at `tk/current-font-size'.
+    Set that for the current frame, and also make it the default for
+    other, future frames."
+      (let ((font-code (tk/font-code)))
+        (add-to-list 'default-frame-alist (cons 'font font-code))
+        (set-frame-font font-code)))
+
+    (defun tk/reset-font-size ()
+      "Change font size back to `tk/default-font-size'."
+      (interactive)
+      (setq tk/current-font-size tk/default-font-size)
+      (tk/set-font-size))
+
+    (defun tk/increase-font-size ()
+      "Increase current font size by a factor of `tk/font-change-increment'."
+      (interactive)
+      (setq tk/current-font-size
+            (ceiling (* tk/current-font-size tk/font-change-increment)))
+      (tk/set-font-size))
+
+    (defun tk/decrease-font-size ()
+      "Decrease current font size by a factor of `tk/font-change-increment', down to a minimum size of 1."
+      (interactive)
+      (setq tk/current-font-size
+            (max 1
+                 (floor (/ tk/current-font-size tk/font-change-increment))))
+      (tk/set-font-size))
+
+    (define-key global-map (kbd "C-)") 'hrs/reset-font-size)
+    (define-key global-map (kbd "C-+") 'hrs/increase-font-size)
+    (define-key global-map (kbd "C-=") 'hrs/increase-font-size)
+    (define-key global-map (kbd "C-_") 'hrs/decrease-font-size)
+    (define-key global-map (kbd "C--") 'hrs/decrease-font-size)
+
+    (tk/reset-font-size)
+#+END_SRC
+
+* Programming Customisations
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2017-11-23 Thu 12:52
+  :ARCHIVE_FILE: f:/code/personal/dotfiles/emacs.d/configuration.org
+  :ARCHIVE_CATEGORY: configuration
+  :END:
+
+** General
+
+Reduce the default indentation.
+
+#+BEGIN_SRC emacs-lisp
+  (setq-default tab-width 4)
+#+END_SRC
+
+Bring the compilation output in focus.
+
+#+BEGIN_SRC emacs-lisp
+  (setq compilation-scroll-output t)
+#+END_SRC
+
+** Python
+
+#+BEGIN_SRC emacs-lisp
+  (setq python-indent 4)
+#+END_SRC
+
+** Magit
+
+Bring up the status menu with =C-x g=.
+
+=magit= requests a confirm before each push which is not necessary.
+
+Enable spellcheck when writing commit messages.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package magit
+    :bind ("C-x g" . magit-status)
+    :config
+    (setq magit-push-always-verify nil)
+    (setq git-commit-summary-max-length 50)
+    (add-hook 'git-commit-mode-hook 'turn-on-flyspell)
+#+END_SRC
+
+** Projectile
+
+#+BEGIN_SRC emacs-lisp
+  (defun tk/search-project-for-symbol-at-point ()
+    "Use `projectile-ag' to search the current project for `symbol-at-point'."
+    (interactive)
+    (projectile-ag (projectile-symbol-at-point)))
+
+  (global-set-key (kbd "C-c v") 'projectile-ag)
+  (global-set-key (kbd "C-c C-v") 'tk/search-project-for-symbol-at-point)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (setq projectile-switch-project-action 'projectile-dired)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (setq projectile-require-projectile-root nil)
+#+END_SRC
+
+** Flycheck
+
+#+BEGIN_SRC emacs-lisp
+  (use-package flycheck
+    :config
+    (add-hook 'after-init-hook #'global-flycheck-mode))
+#+END_SRC
+
+** which-key
+
+#+BEGIN_SRC emacs-lisp
+  (use-package which-key
+               :config
+               (which-key-mode))
+#+END_SRC
+
+** org-bullets
+
+#+BEGIN_SRC emacs-lisp
+  (use-package org-bullets
+    :config
+    (add-hook 'org-mode-hook (lambda() (org-bullets-mode 1))))
+#+END_SRC
