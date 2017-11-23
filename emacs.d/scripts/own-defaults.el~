@@ -29,6 +29,27 @@
   (text-scale-set 0))
 
 ;; Settings
+(defun own-defaults/set-frame-size-according-to-resolution ()
+  "Set window size according to screen resolution."
+  (interactive)
+  (if window-system
+  (progn
+    ;; use 200 char wide window for largeish displays
+    ;; and smaller 175 column windows for smaller displays
+    (if (> (x-display-pixel-width) 1280)
+           (add-to-list 'default-frame-alist (cons 'width 200))
+           (add-to-list 'default-frame-alist (cons 'width 175)))
+    ;; for the height, subtract a couple hundred pixels
+    ;; from the screen height (for panels, menubars and
+    ;; whatnot), then divide by the height of a char to
+    ;; get the height we want
+    (add-to-list 'default-frame-alist
+         (cons 'height (/ (- (x-display-pixel-height) 100)
+                             (frame-char-height)))))))
+
+(defun own-defaults/show-line-numbers ()
+  "Show line numbers."
+  (setq global-linum-mode t))
 
 (defun own-defaults/open-files-from-home-directory ()
   "When opening a file, start at the user's home directory."
@@ -46,7 +67,7 @@ garbage collection."
 (defun own-defaults/make-scripts-executable ()
   "When saving a file starting with '#!', make it executable."
   (add-hook 'after-save-hook
-	    'executable-make-buffer-executable-if-script-p))
+	    'executable-make-buffer-file-executable-if-script-p))
 
 (defun own-defaults/single-space-after-periods ()
   "Add only a single space after the completion of a sentence."
@@ -94,7 +115,8 @@ out of sync."
 
 (defun own-defaults/use-all-settings ()
   "Use all the settings defined above."
-  
+  (own-defaults/set-frame-size-according-to-resolution)
+  (own-defaults/show-line-numbers)
   (own-defaults/open-files-from-home-directory)
   (own-defaults/increase-gc-threshold)
   (own-defaults/delete-trailing-whitespace)
@@ -118,7 +140,7 @@ out of sync."
 		  'own-defaults/comment-or-uncomment-region-or-line))
 
 (defun own-defaults/bind-home-and-end-keys ()
-  "Make <home> and <end> point to the beginning and end of 
+  "Make <home> and <end> point to the beginning and end of
 line respectively."
   (global-set-key (kbd "<home>") 'move-beginning-of-line)
   (global-set-key (kbd "<end>") 'move-end-of-line))
