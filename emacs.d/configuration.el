@@ -142,7 +142,13 @@
 (global-set-key (kbd "C-c a") 'org-agenda)
 (setq org-log-done t)
 
-(setq org-agenda-files (list "~/Documents/org/cumulus.org"))
+(setq org-agenda-files (list "~/OneDrive/Tejas/Documents/org/chores.org"
+                             "~/OneDrive/Tejas/Documents/org/cumulus.org"
+                             "~/OneDrive/Tejas/Documents/org/errands.org"
+                             "~/OneDrive/Tejas/Documents/org/habits.org"
+                             "~/OneDrive/Tejas/Documents/org/learning.org"
+                             "~/OneDrive/Tejas/Documents/org/prm.org"
+                             "~/OneDrive/Tejas/Documents/org/read_write.org"))
 
 (setq org-todo-keywords
       (quote ((sequence "TODO(t!)" "NEXT(n!)" "|" "DONE(d@/!)")

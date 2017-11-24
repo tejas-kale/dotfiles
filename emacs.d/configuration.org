@@ -275,7 +275,13 @@ Set keybindings
 Configure the agenda files.
 
 #+BEGIN_SRC emacs-lisp
-  (setq org-agenda-files (list "~/Documents/org/cumulus.org"))
+  (setq org-agenda-files (list "~/OneDrive/Tejas/Documents/org/chores.org"
+                               "~/OneDrive/Tejas/Documents/org/cumulus.org"
+                               "~/OneDrive/Tejas/Documents/org/errands.org"
+                               "~/OneDrive/Tejas/Documents/org/habits.org"
+                               "~/OneDrive/Tejas/Documents/org/learning.org"
+                               "~/OneDrive/Tejas/Documents/org/prm.org"
+                               "~/OneDrive/Tejas/Documents/org/read_write.org"))
 #+END_SRC
 
 Custom task sequence and colour-coding.

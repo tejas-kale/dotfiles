@@ -263,10 +263,25 @@ Bring the compilation output in focus.
 
 * =org-mode= Customisations
 
+Set keybindings
+
+#+BEGIN_SRC emacs-lisp
+  (require 'org)
+  (global-set-key (kbd "C-c l") 'org-store-link)
+  (global-set-key (kbd "C-c a") 'org-agenda)
+  (setq org-log-done t)
+#+END_SRC
+
 Configure the agenda files.
 
 #+BEGIN_SRC emacs-lisp
-  (setq org-agenda-files (list "~/Documents/org/cumulus.org"))
+  (setq org-agenda-files (list "~/Documents/org/chores.org"
+                               "~/Documents/org/cumulus.org"
+                               "~/Documents/org/errands.org"
+                               "~/Documents/org/habits.org"
+                               "~/Documents/org/learning.org"
+                               "~/Documents/org/prm.org"
+                               "~/Documents/org/read_write.org"))
 #+END_SRC
 
 Custom task sequence and colour-coding.
