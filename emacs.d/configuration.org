@@ -5,6 +5,8 @@
 
 * Package Management
 
+Set up the MELPA and GNU repositories.
+
 #+BEGIN_SRC emacs-lisp
   (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
                       (not (gnutls-available-p))))
@@ -13,6 +15,34 @@
   (when (< emacs-major-version 24)
     ;; For important compatibility libraries like cl-lib
     (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
+#+END_SRC
+
+Auto-install required packages.
+
+#+BEGIN_SRC emacs-lisp
+  (defvar req-packages '(auto-complete
+                         ein
+                         elpy
+                         flycheck
+                         magit
+                         monokai-theme
+                         nlinum
+                         projectile
+                         use-package))
+
+    (defun uninstalled-packages (packages)
+      (delq nil
+            (mapcar (lambda (p)
+                      (if (package-installed-p p nil) nil p))
+                    packages)))
+
+    (let ((need-to-install
+           (uninstalled-packages req-packages)))
+      (when need-to-install
+        (progn
+          (package-refresh-contents)
+          (dolist (p need-to-install)
+            (package-install p)))))
 #+END_SRC
 
 * Setup Defaults
@@ -197,57 +227,35 @@ Bring the compilation output in focus.
   (setq compilation-scroll-output t)
 #+END_SRC
 
-** Python
+** =auto-complete=
+
+I prefer to see a listing for auto-complete.
 
 #+BEGIN_SRC emacs-lisp
-  (setq python-indent 4)
+  (require 'auto-complete-config)
+  (ac-config-default)
+
+  (setq ac-show-menu-immediately-on-auto-complete t)
 #+END_SRC
 
-** Projectile
+** =elpy=
+
+Use the IPython interpreter by default.
 
 #+BEGIN_SRC emacs-lisp
-  (defun tk/search-project-for-symbol-at-point ()
-    "Use `projectile-ag' to search the current project for `symbol-at-point'."
-    (interactive)
-    (projectile-ag (projectile-symbol-at-point)))
-
-  (global-set-key (kbd "C-c v") 'projectile-ag)
-  (global-set-key (kbd "C-c C-v") 'tk/search-project-for-symbol-at-point)
+  (require 'elpy)
+  (elpy-enable)
+  (elpy-use-ipython)
 #+END_SRC
+
+** =flycheck=
 
 #+BEGIN_SRC emacs-lisp
-  (setq projectile-switch-project-action 'projectile-dired)
+  (require 'flycheck)
+  (add-hook 'after-init-hook #'global-flycheck-mode)
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
-  (setq projectile-require-projectile-root nil)
-#+END_SRC
-
-** Flycheck
-
-#+BEGIN_SRC emacs-lisp
-  (use-package flycheck
-    :config
-    (add-hook 'after-init-hook #'global-flycheck-mode))
-#+END_SRC
-
-** which-key
-
-#+BEGIN_SRC emacs-lisp
-  (use-package which-key
-               :config
-               (which-key-mode))
-#+END_SRC
-
-** org-bullets
-
-#+BEGIN_SRC emacs-lisp
-  (use-package org-bullets
-    :config
-    (add-hook 'org-mode-hook (lambda() (org-bullets-mode 1))))
-#+END_SRC
-
-** Magit
+** =magit=
 
 - Bring up the status menu with =C-x g=.
 - Remove =magit='s default behaviour of requesting a confirmation before each push.
@@ -260,6 +268,35 @@ Bring the compilation output in focus.
   (setq git-commit-summary-max-length 50)
   (add-hook 'git-commit-mode-hook 'turn-on-flyspell)
 #+END_SRC
+
+** =org-bullets=
+
+#+BEGIN_SRC emacs-lisp
+  (require 'org-bullets)
+  (add-hook 'org-mode-hook (lambda() (org-bullets-mode 1)))
+#+END_SRC
+
+** =projectile=
+
+Initialise the package.
+
+#+BEGIN_SRC emacs-lisp
+  (require 'projectile)
+  (projectile-global-mode)
+#+END_SRC
+** =python=
+
+#+BEGIN_SRC emacs-lisp
+  (setq python-indent 4)
+#+END_SRC
+
+** =which-key=
+
+#+BEGIN_SRC emacs-lisp
+  (require 'which-key)
+  (which-key-mode)
+#+END_SRC
+
 
 * =org-mode= Customisations
 
@@ -275,13 +312,13 @@ Set keybindings
 Configure the agenda files.
 
 #+BEGIN_SRC emacs-lisp
-  (setq org-agenda-files (list "~/OneDrive/Tejas/Documents/org/chores.org"
-                               "~/OneDrive/Tejas/Documents/org/cumulus.org"
-                               "~/OneDrive/Tejas/Documents/org/errands.org"
-                               "~/OneDrive/Tejas/Documents/org/habits.org"
-                               "~/OneDrive/Tejas/Documents/org/learning.org"
-                               "~/OneDrive/Tejas/Documents/org/prm.org"
-                               "~/OneDrive/Tejas/Documents/org/read_write.org"))
+  (setq org-agenda-files (list "f:/documents/personal/org/chores.org"
+                               "f:/documents/personal/org/cumulus.org"
+                               "f:/documents/personal/org/errands.org"
+                               "f:/documents/personal/org/habits.org"
+                               "f:/documents/personal/org/learning.org"
+                               "f:/documents/personal/org/prm.org"
+                               "f:/documents/personal/org/read_write.org"))
 #+END_SRC
 
 Custom task sequence and colour-coding.
