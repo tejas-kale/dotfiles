@@ -5,8 +5,6 @@
 
 * Package Management
 
-Set up the MELPA and GNU repositories.
-
 #+BEGIN_SRC emacs-lisp
   (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
                       (not (gnutls-available-p))))
@@ -23,6 +21,7 @@ Auto-install required packages.
   (defvar req-packages '(auto-complete
                          ein
                          elpy
+                         exec-path-from-shell
                          flycheck
                          magit
                          monokai-theme
@@ -53,6 +52,14 @@ Use [[own_defaults.el][own_defaults.el]] to setup defaults
   (load-file "~/.emacs.d/scripts/own-defaults.el")
   (own-defaults/use-all-settings)
   (own-defaults/use-all-keybindings)
+#+END_SRC
+
+* Device Settings
+
+Load =org-agenda-files=.
+
+#+BEGIN_SRC emacs-lisp
+  (load-file "~/.emacs.d/scripts/device-settings.el")
 #+END_SRC
 
 * Configure =use-package=
@@ -297,8 +304,13 @@ Initialise the package.
   (which-key-mode)
 #+END_SRC
 
-
 * =org-mode= Customisations
+
+Automatically indent text.
+
+#+BEGIN_SRC emacs-lisp
+  (setq org-startup-indented t)
+#+END_SRC
 
 Set keybindings
 
@@ -309,24 +321,12 @@ Set keybindings
   (setq org-log-done t)
 #+END_SRC
 
-Configure the agenda files.
-
-#+BEGIN_SRC emacs-lisp
-  (setq org-agenda-files (list "f:/documents/personal/org/chores.org"
-                               "f:/documents/personal/org/cumulus.org"
-                               "f:/documents/personal/org/errands.org"
-                               "f:/documents/personal/org/habits.org"
-                               "f:/documents/personal/org/learning.org"
-                               "f:/documents/personal/org/prm.org"
-                               "f:/documents/personal/org/read_write.org"))
-#+END_SRC
-
 Custom task sequence and colour-coding.
 
 #+BEGIN_SRC emacs-lisp
   (setq org-todo-keywords
-        (quote ((sequence "TODO(t!)" "NEXT(n!)" "|" "DONE(d@/!)")
-                (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
+        (quote ((sequence "TODO(t!)" "NEXT(n!)" "|" "DONE(d!)")
+                (sequence "WAITING(w@/!)" "HOLD(h@/!)" "SOMEDAY(s!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
 
   (setq org-todo-keyword-faces
         (quote (("TODO" :foreground "red" :weight bold)
@@ -341,4 +341,10 @@ Custom task sequence and colour-coding.
   (setq org-use-fast-todo-selection t)
 
   (setq org-treat-S-cursor-todo-selection-as-state-change nil)
+#+END_SRC
+
+Do not show time grid.
+
+#+BEGIN_SRC emacs-lisp
+  (setq org-agenda-use-time-grid nil)
 #+END_SRC
