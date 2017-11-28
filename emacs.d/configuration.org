@@ -312,6 +312,14 @@ Automatically indent text.
   (setq org-startup-indented t)
 #+END_SRC
 
+Wrap lines around the edge of buffer.
+
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'org-mode-hook #'(lambda ()
+                               (visual-line-mode)
+                               (org-indent-mode)))
+#+END_SRC
+
 Set keybindings
 
 #+BEGIN_SRC emacs-lisp
@@ -347,4 +355,11 @@ Do not show time grid.
 
 #+BEGIN_SRC emacs-lisp
   (setq org-agenda-use-time-grid nil)
+#+END_SRC
+
+Archiving settings
+
+#+BEGIN_SRC emacs-lisp
+  (setq org-archive-mark-done nil)
+  (setq org-archive-location "%s_archive::* Archived Tasks")
 #+END_SRC
