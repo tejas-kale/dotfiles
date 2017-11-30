@@ -297,6 +297,13 @@ Initialise the package.
   (setq python-indent 4)
 #+END_SRC
 
+** =realgud=
+
+Load the package by default.
+
+#+BEGIN_SRC emacs-lisp
+  (require 'realgud)
+#+END_SRC
 ** =which-key=
 
 #+BEGIN_SRC emacs-lisp
@@ -318,6 +325,12 @@ Wrap lines around the edge of buffer.
   (add-hook 'org-mode-hook #'(lambda ()
                                (visual-line-mode)
                                (org-indent-mode)))
+#+END_SRC
+
+Open agenda in current buffer.
+
+#+BEGIN_SRC emacs-lisp
+  (setq org-agenda-window-setup 'current-window)
 #+END_SRC
 
 Set keybindings
@@ -357,9 +370,18 @@ Do not show time grid.
   (setq org-agenda-use-time-grid nil)
 #+END_SRC
 
-Archiving settings
+Set location of Reveal.js
 
 #+BEGIN_SRC emacs-lisp
-  (setq org-archive-mark-done nil)
-  (setq org-archive-location "%s_archive::* Archived Tasks")
+  (require 'ox-reveal)
+  (setq org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
+#+END_SRC
+
+Load Python for execution in blocks.
+
+#+BEGIN_SRC emacs-lisp
+  (require 'ob-python)
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((python . t)))
 #+END_SRC
