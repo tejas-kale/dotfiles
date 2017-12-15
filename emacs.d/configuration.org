@@ -1,9 +1,30 @@
 #+TITLE: Emacs Configuration
 #+AUTHOR: Tejas Kale
 #+EMAIL: kaletejas2006@gmail.com
-#+OPTIONS: toc:nil num:nil
+#+OPTIONS: toc:4 h:4
+#+STARTUP: showeverything
 
-* Package Management
+
+* Configuration
+** Startup
+
+#+BEGIN_SRC emacs-lisp
+  ;; Set the load paths which can be overridden later.
+  (package-initialize)
+  (setq custom-file "~/.emacs.d/device-settings.el")
+  (load custom-file t)
+#+END_SRC
+
+** Personal information
+
+#+BEGIN_SRC emacs-lisp
+  (setq user-full-name "Tejas Kale"
+        user-mail-address "kaletejas2006@gmail.com")
+
+#+END_SRC
+
+** Emacs initialisation
+*** Add package sources
 
 #+BEGIN_SRC emacs-lisp
   (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
@@ -15,109 +36,261 @@
     (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
 #+END_SRC
 
-Auto-install required packages.
+After adding the above code block for the first time, use =M-x package-refresh-contents= to reload the list of packages.
+
+*** Add elisp directory and other files
+
+Add path to custom elisp files.
 
 #+BEGIN_SRC emacs-lisp
-  (defvar req-packages '(auto-complete
-                         ein
-                         elpy
-                         exec-path-from-shell
-                         flycheck
-                         magit
-                         monokai-theme
-                         nlinum
-                         projectile
-                         use-package))
-
-    (defun uninstalled-packages (packages)
-      (delq nil
-            (mapcar (lambda (p)
-                      (if (package-installed-p p nil) nil p))
-                    packages)))
-
-    (let ((need-to-install
-           (uninstalled-packages req-packages)))
-      (when need-to-install
-        (progn
-          (package-refresh-contents)
-          (dolist (p need-to-install)
-            (package-install p)))))
+(add-to-list 'load-path "~/elisp")
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+(setq use-package-verbose t)
+(setq use-package-always-ensure t)
+(require 'use-package)
+(use-package auto-compile
+  :config (auto-compile-on-load-mode))
+(setq load-prefer-newer t)
 #+END_SRC
 
-* Setup Defaults
-
-Use [[own_defaults.el][own_defaults.el]] to setup defaults
+** General configuration
+*** Libraries
 
 #+BEGIN_SRC emacs-lisp
-  (load-file "~/.emacs.d/scripts/own-defaults.el")
-  (own-defaults/use-all-settings)
-  (own-defaults/use-all-keybindings)
+  (use-package dash)
 #+END_SRC
 
-* Device Settings
+*** Backups
 
-Load =org-agenda-files=.
+Avoid backup files (beginning with =#= or ending with =~=) from cluttering the working directories.
 
 #+BEGIN_SRC emacs-lisp
-  (load-file "~/.emacs.d/scripts/device-settings.el")
+(setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
 #+END_SRC
 
-* Configure =use-package=
-  :PROPERTIES:
-  :ARCHIVE_TIME: 2017-11-23 Thu 12:52
-  :ARCHIVE_FILE: f:/code/personal/dotfiles/emacs.d/configuration.org
-  :ARCHIVE_CATEGORY: configuration
-  :END:
-
-Install (if required) and activate 'use-package'.
+Save everything!
 
 #+BEGIN_SRC emacs-lisp
-  (unless (package-installed-p 'use-package)
-    (package-refresh-contents)
-    (package-install 'use-package))
-
-  (setq use-package-verbose t)
-  (setq use-package-always-ensure t)
-
-  (require 'use-package)
+(setq delete-old-versions -1)
+(setq version-control t)
+(setq vc-make-backup-files t)
+(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
 #+END_SRC
 
-Always compile packages and use the newest available version.
+*** History
 
 #+BEGIN_SRC emacs-lisp
-  (use-package auto-compile
-    :config (auto-compile-on-load-mode))
-  (setq load-prefer-newer t)
+(setq savehist-file "~/.emacs.d/savehist")
+(savehist-mode 1)
+(setq history-length t)
+(setq history-delete-duplicates t)
+(setq savehist-save-minibuffer-history 1)
+(setq savehist-additional-variables
+      '(kill-ring
+        search-ring
+        regexp-search-ring))
 #+END_SRC
 
-* UI Preferences
-  :PROPERTIES:
-  :ARCHIVE_TIME: 2017-11-23 Thu 12:52
-  :ARCHIVE_FILE: f:/code/personal/dotfiles/emacs.d/configuration.org
-  :ARCHIVE_CATEGORY: configuration
-  :END:
+*** Window configuration
 
-** Tweak Window Chrome
-
-Remove the menu and scroll bar to free up space.
+Split the window into vertical buffers.
 
 #+BEGIN_SRC emacs-lisp
-  (tool-bar-mode 0)
-  (menu-bar-mode 0)
-  (when window-system
-    (scroll-bar-mode -1))
+(split-window-right)
 #+END_SRC
 
-Add project name to title frame.
-
-** Use Lambdas
+Refresh buffer when a file is modified externally.
 
 #+BEGIN_SRC emacs-lisp
-  (global-prettify-symbols-mode t)
+(global-auto-revert-mode t)
 #+END_SRC
 
-** Cursor
+Set default line length to 80 characters.
 
+#+BEGIN_SRC emacs-lisp
+(setq-default fill-column 80)
+#+END_SRC
+
+Remove the startup message and clear the scratch buffer.
+
+#+BEGIN_SRC emacs-lisp
+(setq inhibit-startup-message t)
+(setq initial-scratch-message nil)
+#+END_SRC
+
+Remove the tool bar, menu bar, and scrollbar
+
+#+BEGIN_SRC emacs-lisp
+(tool-bar-mode -1)
+(menu-bar-mode -1)
+(toggle-scroll-bar -1)
+#+END_SRC
+
+Show time in mode line.
+
+#+BEGIN_SRC emacs-lisp
+(display-time-mode 1)
+#+END_SRC
+
+=winner-mode= lets you use =C-c <left>= and =C-c <right>= to switch between window configurations. This is handy when something has popped up a buffer that you want to look at briefly before returning to whatever you were working on. When you're done, press =C-c <left>=.
+
+#+BEGIN_SRC emacs-lisp
+(use-package winner
+  :defer t)
+#+END_SRC
+
+*** Text configuration
+
+End sentences with a single space.
+
+#+BEGIN_SRC emacs-lisp
+(setq sentence-end-double-space nil)
+#+END_SRC
+
+Delete any trailing whitespace before saving a buffer.
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+#+END_SRC
+
+Delete selected text when new text is typed after selecting it.
+
+#+BEGIN_SRC emacs-lisp
+(delete-selection-mode t)
+#+END_SRC
+
+Turn on syntax highlighting wherever possible.
+
+#+BEGIN_SRC emacs-lisp
+(global-font-lock-mode t)
+#+END_SRC
+
+Highlight matching parenthesis.
+
+#+BEGIN_SRC emacs-lisp
+(show-paren-mode t)
+(setq show-paren-delay 0.0)
+#+END_SRC
+
+*** Helm - interactive completion
+
+#+BEGIN_SRC emacs-lisp
+(use-package helm
+  :diminish helm-mode
+  :init
+  (progn
+    (require 'helm-config)
+    (setq helm-candidate-number-limit 100)
+    ;; From https://gist.github.com/antifuchs/9238468
+    (setq helm-idle-delay 0.0 ; update fast sources immediately (doesn't).
+          helm-input-idle-delay 0.01  ; this actually updates things
+                                        ; reeeelatively quickly.
+          helm-yas-display-key-on-candidate t
+          helm-quick-update t
+          helm-M-x-requires-pattern nil
+          helm-ff-skip-boring-files t)
+    (helm-mode))
+  :bind (("C-c h" . helm-mini)
+         ("C-h a" . helm-apropos)
+         ("C-x C-b" . helm-buffers-list)
+         ("C-x b" . helm-buffers-list)
+         ("M-y" . helm-show-kill-ring)
+         ("M-x" . helm-M-x)
+         ("C-x c o" . helm-occur)
+         ("C-x c s" . helm-swoop)
+         ("C-x c y" . helm-yas-complete)
+         ("C-x c Y" . helm-yas-create-snippet-on-region)
+         ("C-x c b" . my/helm-do-grep-book-notes)
+         ("C-x c SPC" . helm-all-mark-rings)))
+(ido-mode -1) ;; Turn off ido mode in case I enabled it accidentally
+#+END_SRC
+
+*** Mode line format
+
+Show a compact mode line.
+
+#+BEGIN_SRC emacs-lisp
+(use-package smart-mode-line)
+#+END_SRC
+
+*** Lazy yes/no
+
+#+BEGIN_SRC emacs-lisp
+(fset 'yes-or-no-p 'y-or-n-p)
+#+END_SRC
+
+*** Undo tree mode
+
+Use =C-x u= (=undo-tree-visualize=) to visually walk through the changes.
+
+#+BEGIN_SRC emacs-lisp
+(use-package undo-tree
+  :diminish undo-tree-mode
+  :config
+  (progn
+    (global-undo-tree-mode)
+    (setq undo-tree-visualizer-timestamps t)
+    (setq undo-tree-visualizer-diff t)))
+#+END_SRC
+
+*** UTF-8
+
+#+BEGIN_SRC emacs-lisp
+(prefer-coding-system 'utf-8)
+(when (display-graphic-p)
+  (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
+#+END_SRC
+
+*** Garbage collector
+Allow =20 MB= before garbage collector is called.
+
+#+BEGIN_SRC emacs-lisp
+(setq gc-cons-threshold 20000000)
+#+END_SRC
+
+*** Key bindings
+Comment/Uncomment a region.
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "M-;")
+		  'own-defaults/comment-or-uncomment-region-or-line)
+#+END_SRC
+
+Bind =<home>= and =<end>= keys to move the beginning and end of line respectively.
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "<home>") 'move-beginning-of-line)
+(global-set-key (kbd "<end>") 'move-end-of-line)
+#+END_SRC
+
+Bind =C-+= and =C--= to increase and decrease text size.
+
+#+BEGIN_SRC emacs-lisp
+(define-key global-map (kbd "C-)") 'own-defaults/reset-text-size)
+(define-key global-map (kbd "C-+") 'text-scale-increase)
+(define-key global-map (kbd "C-=") 'text-scale-increase)
+(define-key global-map (kbd "C--") 'text-scale-decrease)
+(define-key global-map (kbd "C-_") 'text-scale-decrease)
+#+END_SRC
+
+*** Executable scripts
+Files starting with =#!= are made executable.
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'after-save-hook
+	    'executable-make-buffer-file-executable-if-script-p)
+#+END_SRC
+
+*** Confirm closing Emacs
+Seek confirmation before closing Emacs
+
+#+BEGIN_SRC emacs-lisp
+(setq confirm-kill-emacs 'y-or-n-p)
+#+END_SRC
+
+*** Cursor
 I like a bar instead of a box.
 
 #+BEGIN_SRC emacs-lisp
@@ -125,27 +298,7 @@ I like a bar instead of a box.
   (set-cursor-color "#ffffff")
 #+END_SRC
 
-** Theme
-
-#+BEGIN_SRC emacs-lisp
-  (use-package monokai-theme)
-
-  (defun tk/apply-monokai-theme ()
-    (load-theme 'monokai t))
-#+END_SRC
-
-If this code is being evaluated by =emacs --daemon=, ensure that each subsequent frame is themed appropriately.
-
-#+BEGIN_SRC emacs-lisp
-  (if (daemonp)
-      (add-hook 'after-make-frame-functions
-                (lambda (frame)
-                  (tk/apply-monokai-theme)))
-    (tk/apply-monokai-theme))
-#+END_SRC
-
-** Fonts
-
+*** Fonts
 Hack is the current favourite with size 12.
 
 #+BEGIN_SRC emacs-lisp
@@ -197,122 +350,88 @@ Hack is the current favourite with size 12.
     (tk/reset-font-size)
 #+END_SRC
 
-** Line Numbers
-
-Show line numbers.
-
-#+BEGIN_SRC emacs-lisp
-  ;; Preset `nlinum-format' for minimum width.
-  (defun my-nlinum-mode-hook ()
-    (when nlinum-mode
-      (setq-local nlinum-format
-                  (concat "%" (number-to-string
-                               ;; Guesstimate number of buffer lines.
-                               (ceiling (log (max 1 (/ (buffer-size) 80)) 10)))
-                          "d"))))
-  (add-hook 'nlinum-mode-hook #'my-nlinum-mode-hook)
-#+END_SRC
-
-* Programming Customisations
-  :PROPERTIES:
-  :ARCHIVE_TIME: 2017-11-23 Thu 12:52
-  :ARCHIVE_FILE: f:/code/personal/dotfiles/emacs.d/configuration.org
-  :ARCHIVE_CATEGORY: configuration
-  :END:
-
-** General
-
-Reduce the default indentation.
+*** Show key suggestions
+Use =which-key= to suggest key bindings from an incomplete command
 
 #+BEGIN_SRC emacs-lisp
-  (setq-default tab-width 4)
+(use-package which-key)
+(which-key-mode)
 #+END_SRC
 
-Bring the compilation output in focus.
+*** Theme
+Load the Monokai theme.
 
 #+BEGIN_SRC emacs-lisp
-  (setq compilation-scroll-output t)
+(use-package monokai-theme
+  :init
+  (load-theme 'monokai t))
 #+END_SRC
 
-** =auto-complete=
+** Navigation
 
-I prefer to see a listing for auto-complete.
+*** Helm-swoop - quickly find lines
+
+Better/Faster way to find things.
 
 #+BEGIN_SRC emacs-lisp
-  (require 'auto-complete-config)
-  (ac-config-default)
-
-  (setq ac-show-menu-immediately-on-auto-complete t)
+(use-package helm-swoop
+ :bind
+ (("C-S-s" . helm-swoop)
+  ("M-i" . helm-swoop)
+  ("M-s s" . helm-swoop)
+  ("M-s M-s" . helm-swoop)
+  ("M-I" . helm-swoop-back-to-last-point)
+  ("C-c M-i" . helm-multi-swoop)
+  ("C-x M-i" . helm-multi-swoop-all)
+  )
+ :config
+ (progn
+   (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
+   (define-key helm-swoop-map (kbd "M-i") 'helm-multi-swoop-all-from-helm-swoop))
+)
 #+END_SRC
 
-** =elpy=
+*** Windmove - switching between windows
 
-Use the IPython interpreter by default.
+Windmove provides a more intuitive way than =C-x o= (=other-window=) to move between windows. But it doesn't work well with =org-mode= hence the need to use different keybindings.
 
 #+BEGIN_SRC emacs-lisp
-  (require 'elpy)
-  (elpy-enable)
-  (elpy-use-ipython)
+(use-package windmove
+  :bind
+  (("<f2> <right>" . windmove-right)
+   ("<f2> <left>" . windmove-left)
+   ("<f2> <up>" . windmove-up)
+   ("<f2> <down>" . windmove-down)
+   ))
 #+END_SRC
 
-** =flycheck=
+** Writing
+*** Line breaks
+
+=visual-line-mode= only seems to break the text into multiple lines.
 
 #+BEGIN_SRC emacs-lisp
-  (require 'flycheck)
-  (add-hook 'after-init-hook #'global-flycheck-mode)
+(remove-hook 'text-mode-hook #'turn-on-auto-fill)
+(add-hook 'text-mode-hook 'turn-on-visual-line-mode)
 #+END_SRC
 
-** =magit=
-
-- Bring up the status menu with =C-x g=.
-- Remove =magit='s default behaviour of requesting a confirmation before each push.
-- Set maximum commit summary output to 50 lines?
-- Enable spellcheck when writing commit messages.
+** Org-mode
+*** Lists
+Use pretty symbols.
 
 #+BEGIN_SRC emacs-lisp
-  (global-set-key (kbd "C-x g") 'magit-status)
-  (setq magit-push-always-verify nil)
-  (setq git-commit-summary-max-length 50)
-  (add-hook 'git-commit-mode-hook 'turn-on-flyspell)
+(global-prettify-symbols-mode t)
 #+END_SRC
 
-** =org-bullets=
+Also, use bullets from the =org-bullets= package.
 
 #+BEGIN_SRC emacs-lisp
-  (require 'org-bullets)
-  (add-hook 'org-mode-hook (lambda() (org-bullets-mode 1)))
+(use-package org-bullets
+  :init
+  (add-hook 'org-mode-hook (lambda() (org-bullets-mode 1))))
 #+END_SRC
 
-** =projectile=
-
-Initialise the package.
-
-#+BEGIN_SRC emacs-lisp
-  (require 'projectile)
-  (projectile-global-mode)
-#+END_SRC
-** =python=
-
-#+BEGIN_SRC emacs-lisp
-  (setq python-indent 4)
-#+END_SRC
-
-** =realgud=
-
-Load the package by default.
-
-#+BEGIN_SRC emacs-lisp
-  (require 'realgud)
-#+END_SRC
-** =which-key=
-
-#+BEGIN_SRC emacs-lisp
-  (require 'which-key)
-  (which-key-mode)
-#+END_SRC
-
-* =org-mode= Customisations
-
+*** TBS
 Automatically indent text.
 
 #+BEGIN_SRC emacs-lisp
@@ -385,3 +504,59 @@ Load Python for execution in blocks.
    'org-babel-load-languages
    '((python . t)))
 #+END_SRC
+
+
+** Coding
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2017-11-23 Thu 12:52
+  :ARCHIVE_FILE: f:/code/personal/dotfiles/emacs.d/configuration.org
+  :ARCHIVE_CATEGORY: configuration
+  :END:
+*** General
+Reduce the default indentation.
+
+#+BEGIN_SRC emacs-lisp
+(setq-default tab-width 4)
+#+END_SRC
+
+Bring the compilation output in focus.
+
+#+BEGIN_SRC emacs-lisp
+(setq compilation-scroll-output t)
+#+END_SRC
+
+*** Auto-complete
+I prefer to see a listing for auto-complete.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package auto-complete-config
+    :config
+    (ac-config-default))
+
+  (setq ac-show-menu-immediately-on-auto-complete t)
+#+END_SRC
+
+*** Python
+Use the IPython interpreter by default.
+
+#+BEGIN_SRC emacs-lisp
+(use-package elpy)
+(elpy-enable)
+(elpy-use-ipython)
+#+END_SRC
+
+*** Flycheck
+
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck
+  :init
+  (add-hook 'after-init-hook #'global-flycheck-mode))
+#+END_SRC
+
+
+
+alise the package.
+
+#+BEGIN_SRC emacs-lisp
+  (require 'projectile)
+  (projectile-global-
