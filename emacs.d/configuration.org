@@ -10,9 +10,10 @@
 
 #+BEGIN_SRC emacs-lisp
   ;; Set the load paths which can be overridden later.
+  (require 'package)
   (package-initialize)
-  (setq custom-file "~/.emacs.d/device-settings.el")
-  (load custom-file t)
+  (setq device-file "~/.emacs.d/scripts/device-settings.el")
+  (load-file device-file)
 #+END_SRC
 
 ** Personal information
@@ -34,6 +35,7 @@
   (when (< emacs-major-version 24)
     ;; For important compatibility libraries like cl-lib
     (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
+  (package-initialize)
 #+END_SRC
 
 After adding the above code block for the first time, use =M-x package-refresh-contents= to reload the list of packages.
@@ -43,16 +45,25 @@ After adding the above code block for the first time, use =M-x package-refresh-c
 Add path to custom elisp files.
 
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'load-path "~/elisp")
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
-(setq use-package-verbose t)
-(setq use-package-always-ensure t)
-(require 'use-package)
-(use-package auto-compile
-  :config (auto-compile-on-load-mode))
-(setq load-prefer-newer t)
+  (add-to-list 'load-path "~/elisp")
+  (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package))
+  (setq use-package-verbose t)
+  (setq use-package-always-ensure t)
+  (require 'use-package)
+  (use-package auto-compile
+    :config (auto-compile-on-load-mode))
+  (setq load-prefer-newer t)
+#+END_SRC
+
+*** Add environment variables to Emacs
+
+#+BEGIN_SRC emacs-lisp
+  (use-package exec-path-from-shell
+    :init
+    (when (memq window-system '(mac ns x))
+      (exec-path-from-shell-initialize)))
 #+END_SRC
 
 ** General configuration
@@ -198,6 +209,7 @@ Highlight matching parenthesis.
          ("C-x b" . helm-buffers-list)
          ("M-y" . helm-show-kill-ring)
          ("M-x" . helm-M-x)
+         ("C-x C-f" . helm-find-files)
          ("C-x c o" . helm-occur)
          ("C-x c s" . helm-swoop)
          ("C-x c y" . helm-yas-complete)
@@ -207,8 +219,28 @@ Highlight matching parenthesis.
 (ido-mode -1) ;; Turn off ido mode in case I enabled it accidentally
 #+END_SRC
 
-*** Mode line format
+*** Encryption
+Use the packaged EasyPG encryption.
 
+The default value of =epa-pinentry-mode= is =nil= which leads to failure in decrypting files. Changing it to ='loopback= makes Emacs ask for passphrase in the minibuffer.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package epa-file)
+  (custom-set-variables '(epg-gpg-program "/usr/local/bin/gpg"))
+  (setq epa-pinentry-mode 'loopback)
+  (epa-file-enable)
+
+#+END_SRC
+
+Use the =org-password-manager= package to retrieve usernames and passwords.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package org-password-manager
+    :init
+    (add-hook 'org-mode-hook 'org-password-manager-key-bindings))
+#+END_SRC
+
+*** Mode line format
 Show a compact mode line.
 
 #+BEGIN_SRC emacs-lisp
@@ -398,10 +430,10 @@ Windmove provides a more intuitive way than =C-x o= (=other-window=) to move bet
 #+BEGIN_SRC emacs-lisp
 (use-package windmove
   :bind
-  (("<f2> <right>" . windmove-right)
-   ("<f2> <left>" . windmove-left)
-   ("<f2> <up>" . windmove-up)
-   ("<f2> <down>" . windmove-down)
+  (("<f2> l" . windmove-right)
+   ("<f2> h" . windmove-left)
+   ("<f2> k" . windmove-up)
+   ("<f2> j" . windmove-down)
    ))
 #+END_SRC
 
@@ -505,7 +537,6 @@ Load Python for execution in blocks.
    '((python . t)))
 #+END_SRC
 
-
 ** Coding
   :PROPERTIES:
   :ARCHIVE_TIME: 2017-11-23 Thu 12:52
@@ -552,11 +583,3 @@ Use the IPython interpreter by default.
   :init
   (add-hook 'after-init-hook #'global-flycheck-mode))
 #+END_SRC
-
-
-
-alise the package.
-
-#+BEGIN_SRC emacs-lisp
-  (require 'projectile)
-  (projectile-global-
