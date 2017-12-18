@@ -229,7 +229,6 @@ The default value of =epa-pinentry-mode= is =nil= which leads to failure in decr
   (custom-set-variables '(epg-gpg-program "/usr/local/bin/gpg"))
   (setq epa-pinentry-mode 'loopback)
   (epa-file-enable)
-
 #+END_SRC
 
 Use the =org-password-manager= package to retrieve usernames and passwords.
@@ -397,6 +396,13 @@ Load the Monokai theme.
 (use-package monokai-theme
   :init
   (load-theme 'monokai t))
+#+END_SRC
+
+*** Pocket
+Pocket extension to read articles in Emacs.
+
+#+BEGIN_SRC emacs-lisp
+;  (use-package pocket-reader)
 #+END_SRC
 
 ** Navigation
