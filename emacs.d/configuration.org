@@ -13,7 +13,7 @@
   (require 'package)
   (package-initialize)
   (setq device-file "~/.emacs.d/scripts/device-settings.el")
-  (load-file device-file)
+  (load device-file)
 #+END_SRC
 
 ** Personal information
@@ -205,7 +205,7 @@ Highlight matching parenthesis.
     (helm-mode))
   :bind (("C-c h" . helm-mini)
          ("C-h a" . helm-apropos)
-         ("C-x C-b" . helm-buffers-list)
+         ("C-x C-b" . helm-mini)
          ("C-x b" . helm-buffers-list)
          ("M-y" . helm-show-kill-ring)
          ("M-x" . helm-M-x)
@@ -469,6 +469,8 @@ Also, use bullets from the =org-bullets= package.
   (add-hook 'org-mode-hook (lambda() (org-bullets-mode 1))))
 #+END_SRC
 
+*** GTD
+
 *** TBS
 Automatically indent text.
 
@@ -588,4 +590,19 @@ Use the IPython interpreter by default.
 (use-package flycheck
   :init
   (add-hook 'after-init-hook #'global-flycheck-mode))
+#+END_SRC
+*** Projectile
+Enable Projectile for project management and =helm-projectile= to get the goodies of =helm= with it.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package projectile)
+  (use-package helm-projectile)
+
+  (projectile-global-mode)
+  (setq projectile-indexing-method 'alien)
+
+  (helm-projectile-on)
+  (setq projectile-completion-system 'helm)
+  (setq projectile-switch-project-action 'helm-projectile-find-file)
+  (setq projectile-switch-project-action 'helm-projectile)
 #+END_SRC
