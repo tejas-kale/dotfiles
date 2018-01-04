@@ -409,19 +409,19 @@ Pocket extension to read articles in Emacs.
 In Windows, I prefer to use the Babun (Cygwin) shell.
 
 #+BEGIN_SRC emacs-lisp
-  (if (eq system-type 'windows-nt)
-          (setenv "PATH" (concat "c:/Users/tejas.k/.babun/cygwin/bin;" (getenv "PATH")))
-          (setq exec-path (cons "c:/Users/tejas.k/.babun/cygwin/bin/" exec-path))
+  (setenv "PATH" (concat "c:/Users/tejas.k/.babun/cygwin/bin;" (getenv "PATH")))
+  (setq exec-path (cons "c:/Users/tejas.k/.babun/cygwin/bin/" exec-path))
 
-          (use-package cygwin-mount)
-          (cygwin-mount-activate)
+  (use-package cygwin-mount)
+  (cygwin-mount-activate)
 
-          (add-hook 'comint-output-filter-functions
-                    'shell-strip-ctrl-m nil t)
-          (add-hook 'comint-output-filter-functions
-                    'comint-watch-for-password-prompt nil t)
-          (setq explicit-shell-file-name "mintty.exe --login -i")
-          (setq shell-file-name explicit-shell-file-name))
+  (add-hook 'comint-output-filter-functions
+            'shell-strip-ctrl-m nil t)
+  (add-hook 'comint-output-filter-functions
+            'comint-watch-for-password-prompt nil t)
+  (setq explicit-shell-file-name "bash.exe")
+  (setq explicit-sh-args '("--login" "-i"))
+  (setq shell-file-name explicit-shell-file-name)
 
   (add-hook 'shell-mode-hook 'n-shell-mode-hook)
   (defun n-shell-mode-hook ()
