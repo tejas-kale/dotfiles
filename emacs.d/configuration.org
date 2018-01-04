@@ -629,6 +629,15 @@ Use the IPython interpreter by default.
 (elpy-use-ipython)
 #+END_SRC
 
+Configure =virtualenv= wrapper
+
+#+BEGIN_SRC emacs-lisp
+  (use-package virtualenvwrapper
+    :config
+    (venv-initialize-eshell)
+    (setq venv-location "f:/code/office/config/venvs"))
+#+END_SRC
+
 *** Flycheck
 
 #+BEGIN_SRC emacs-lisp
