@@ -405,8 +405,31 @@ Pocket extension to read articles in Emacs.
 ;  (use-package pocket-reader)
 #+END_SRC
 
-** Navigation
+*** Shell
+In Windows, I prefer to use the Babun (Cygwin) shell.
 
+#+BEGIN_SRC emacs-lisp
+  (if (eq system-type 'windows-nt)
+          (setenv "PATH" (concat "c:/Users/tejas.k/.babun/cygwin/bin;" (getenv "PATH")))
+          (setq exec-path (cons "c:/Users/tejas.k/.babun/cygwin/bin/" exec-path))
+
+          (use-package cygwin-mount)
+          (cygwin-mount-activate)
+
+          (add-hook 'comint-output-filter-functions
+                    'shell-strip-ctrl-m nil t)
+          (add-hook 'comint-output-filter-functions
+                    'comint-watch-for-password-prompt nil t)
+          (setq explicit-shell-file-name "bash.exe")
+          (setq shell-file-name explicit-shell-file-name))
+
+  (add-hook 'shell-mode-hook 'n-shell-mode-hook)
+  (defun n-shell-mode-hook ()
+    (local-set-key '[up] 'comint-previous-input)
+    (local-set-key '[down] 'comint-next-input)
+    (local-set-key '[(shift tab)] 'comint-next-matching-input-from-input))
+#+END_SRC
+** Navigation
 *** Helm-swoop - quickly find lines
 
 Better/Faster way to find things.
@@ -441,6 +464,19 @@ Windmove provides a more intuitive way than =C-x o= (=other-window=) to move bet
    ("<f2> k" . windmove-up)
    ("<f2> j" . windmove-down)
    ))
+#+END_SRC
+
+*** Evil
+#+BEGIN_SRC emacs-lisp
+  (use-package evil
+    :init
+    (evil-mode 1))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package powerline-evil
+    :init
+    (powerline-evil-vim-color-theme))
 #+END_SRC
 
 ** Writing
@@ -510,7 +546,7 @@ Custom task sequence and colour-coding.
 
   (setq org-todo-keyword-faces
         (quote (("TODO" :foreground "red" :weight bold)
-                ("NEXT" :foreground "blue" :weight bold)
+                ("NEXT" :foreground "pink" :weight bold)
                 ("DONE" :foreground "forest green" :weight bold)
                 ("WAITING" :foreground "orange" :weight bold)
                 ("HOLD" :foreground "magenta" :weight bold)
@@ -521,6 +557,34 @@ Custom task sequence and colour-coding.
   (setq org-use-fast-todo-selection t)
 
   (setq org-treat-S-cursor-todo-selection-as-state-change nil)
+#+END_SRC
+
+Custom agenda
+
+#+BEGIN_SRC emacs-lisp
+  (setq org-agenda-custom-commands
+        '(("o" "At the office" tags-todo "@office"
+           ((org-agenda-overriding-header "Office")
+            (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first)))
+          ("y" "Study" tags-todo "@study"
+           ((org-agenda-overriding-header "Study")
+            (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first)))))
+
+  (defun my-org-agenda-skip-all-siblings-but-first ()
+    "Skip all but the first non-done entry."
+    (let (should-skip-entry)
+      (unless (org-current-is-todo)
+        (setq should-skip-entry t))
+      (save-excursion
+        (while (and (not should-skip-entry) (org-goto-sibling t))
+          (when (org-current-is-todo)
+            (setq should-skip-entry t))))
+      (when should-skip-entry
+        (or (outline-next-heading)
+            (goto-char (point-max))))))
+
+  (defun org-current-is-todo ()
+    (string= "TODO" (org-get-todo-state)))
 #+END_SRC
 
 Do not show time grid.
