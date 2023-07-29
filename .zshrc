@@ -100,11 +100,6 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-# Ruby
-source $(brew --prefix)/opt/chruby/share/chruby/chruby.sh
-source $(brew --prefix)/opt/chruby/share/chruby/auto.sh
-chruby ruby-3.1.2
-
 # IntelliJ
 alias idea="open -na \"PyCharm.app\" --args \"$@\""
 
