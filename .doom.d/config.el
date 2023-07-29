@@ -84,7 +84,8 @@ tasks."
                  (vulpea-buffer-p))
         (save-excursion
           (goto-char (point-min))
-          (let* ((tags (vulpea-buffer-tags-get))
+          (let* ((tags (ignore-errors
+                         (vulpea-buffer-tags-get)))
                  (original-tags tags))
             (if (vulpea-project-p)
                 (setq tags (cons "project" tags))
@@ -96,7 +97,8 @@ tasks."
             ;; update tags if changed
             (when (or (seq-difference tags original-tags)
                       (seq-difference original-tags tags))
-              (apply #'vulpea-buffer-tags-set tags))))))
+              (ignore-errors
+                (apply #'vulpea-buffer-tags-set tags)))))))
 
 (defun vulpea-buffer-p ()
   "Return non-nil if the currently visited buffer is a note."
@@ -117,8 +119,9 @@ tasks."
       :on (= tags:node-id nodes:id)
       :where (like tag (quote "%\"project\"%"))]))))
 
-(setq org-agenda-files-not-in-roam '((expand-file-name "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/ticklers.org")
-                                     (expand-file-name "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/regulars.org")))
+(setq org-agenda-files-not-in-roam (list
+                                    (expand-file-name "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/ticklers.org")
+                                    (expand-file-name "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/regulars.org")))
 
 (setq org-agenda-files org-agenda-files-not-in-roam)
 

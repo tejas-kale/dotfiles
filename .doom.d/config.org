@@ -180,7 +180,8 @@ Next, we add a hook that is executed before opening an =org-roam= file or while 
                  (vulpea-buffer-p))
         (save-excursion
           (goto-char (point-min))
-          (let* ((tags (vulpea-buffer-tags-get))
+          (let* ((tags (ignore-errors
+                         (vulpea-buffer-tags-get)))
                  (original-tags tags))
             (if (vulpea-project-p)
                 (setq tags (cons "project" tags))
@@ -192,7 +193,8 @@ Next, we add a hook that is executed before opening an =org-roam= file or while 
             ;; update tags if changed
             (when (or (seq-difference tags original-tags)
                       (seq-difference original-tags tags))
-              (apply #'vulpea-buffer-tags-set tags))))))
+              (ignore-errors
+                (apply #'vulpea-buffer-tags-set tags)))))))
 
 (defun vulpea-buffer-p ()
   "Return non-nil if the currently visited buffer is a note."
@@ -221,8 +223,9 @@ Now, we define a function that queries the open =org-roam= database for =TODO= i
 Finally, we provide the files to be used for generating the agenda.
 
 #+begin_src emacs-lisp
-(setq org-agenda-files-not-in-roam '((expand-file-name "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/ticklers.org")
-                                     (expand-file-name "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/regulars.org")))
+(setq org-agenda-files-not-in-roam (list
+                                    (expand-file-name "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/ticklers.org")
+                                    (expand-file-name "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/regulars.org")))
 
 (setq org-agenda-files org-agenda-files-not-in-roam)
 #+end_src
@@ -239,3 +242,5 @@ To get the latest agenda each time, a function is defined that updates the list 
 (advice-add 'org-agenda :before #'vulpea-agenda-files-update)
 (advice-add 'org-todo-list :before #'vulpea-agenda-files-update)
 #+end_src
+
+#+RESULTS:

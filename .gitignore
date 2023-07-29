@@ -2,3 +2,4 @@ emacs.d/elpa/
 emacs.d/network-security.data
 emacs.d/*~
 emacs.d/*_archive
+*.lock
