@@ -1,0 +1,241 @@
+#+title: Tejas Kale's Emacs Configuration
+
+This is my Emacs configuration. It is meant to used with [[https://github.com/doomemacs/doomemacs][Doom Emacs]]. While the configuration is defined in an =org= file, =doom sync -u= will take care of tangling it to an =elisp= file so that the configuration can be applied when Emacs starts. This configuration only consists of custom specifications related to packages like project paths and appearance parameters.
+
+#+begin_src emacs-lisp
+(setq debug-on-error nil)
+#+end_src
+
+#+begin_src emacs-lisp
+(setq user-full-name "Tejas Kale"
+      user-mail-address "kaletejas2006@gmail.com")
+#+end_src
+
+#+begin_src emacs-lisp
+(setq doom-theme 'doom-one)
+#+end_src
+
+#+begin_src emacs-lisp
+(setq display-line-numbers-type t)
+#+end_src
+
+#+begin_src emacs-lisp
+(setq org-directory "~/Documents/org")
+#+end_src
+
+#+begin_src emacs-lisp
+(setq
+ doom-font (font-spec :family "Fira Code" :size 16)
+ doom-big-font (font-spec :family "Fira Code" :size 28)
+ doom-variable-pitch-font (font-spec :family "Avenir Next" :size 14)
+)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(setq auth-sources '("~/.authinfo.gpg"))
+#+end_src
+
+#+begin_src emacs-lisp
+(with-eval-after-load 'lsp-mode
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\venv\\'"))
+#+end_src
+
+#+begin_src emacs-lisp
+(setq jiralib-url "https://relayr.atlassian.net")
+#+end_src
+
+#+begin_src emacs-lisp
+(add-to-list 'initial-frame-alist '(fullscreen . maximized))
+#+end_src
+
+#+begin_src emacs-lisp
+(setq org-roam-dailies-capture-templates
+      '(("d" "default" entry "%?"
+         :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%b %d, %y (%a)>\n"))
+        ("t" "with-timestamp" entry "* %<%I:%M %p>: %?"
+         :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%b %d, %y (%a)>\n"))))
+#+end_src
+
+
+#+begin_src emacs-lisp
+(setq! auto-dark-dark-theme 'doom-one
+       auto-dark-light-theme 'doom-one-light)
+#+end_src
+
+* Programming
+** Python
+Most of the functionality needed for converting Emacs to a Python IDE is provided by 3 packages - Projectile, LSP, and Pyvenv. Projectile allows us to easily navigate files and folders in our project and interact with them. Given a path, Projectile is smart enough to consider each folder in the path that is under version control (Git, Subversion, etc.) to be a separate folder. If a folder is not under version control but we want it to be considered as a project by Projectile (say an iCloud folder), we just need to create an empty =.projectile= file in the folder.
+
+We can specify the path to our projects in the =projectile-project-search-path= variable. In the block below, we also specify paths to my =org-roam= database - the local path is for office notes and the cloud one is for personal notes.
+
+#+begin_src emacs-lisp
+(setq
+ projectile-project-search-path (list
+                                 (expand-file-name "~/Code")
+                                 (expand-file-name "~/Documents")
+                                 (expand-file-name "~/Library/Mobile Documents/com~apple~CloudDocs/Documents")
+                                 (expand-file-name "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents")))
+#+end_src
+
+After we have written our code, it is a good idea to get a list of warnings and errors in it. This can be provided by =flycheck= which is installed as part of the LSP server. We can execute this check using the command =flycheck-list-errors=. In the code below, we create a new Doom keybinding for this command. This keybinding is only available when we have opened a Python file and are thus in the Python mode. For every mode, there is a local leader key (=SPC= is the leader) which is set to =m=. We can then add a prefix for =flycheck= and then specify a key to execute the command that lists errors.
+
+#+begin_src emacs-lisp
+(map! :after python
+      :map python-mode-map
+      :localleader
+      (:prefix ("f" . "flycheck")
+       :desc "List errors"
+       "l" #'flycheck-list-errors))
+#+end_src
+
+We often need to debug our scripts and Emacs provides the ability to do so using the /Debug Adapter Protocol/. This is available via =dap-mode= and for Python, the package =debugpy= is recommended. We can then start debugging using the command =SPC o d= which is mapped to =+debugger/start=. To do so, we add the following piece of configuration:
+
+#+begin_src emacs-lisp
+(after! dap-mode
+  (setq dap-python-debugger 'debugpy))
+#+end_src
+
+When a function arguments span multiple lines, I prefer that the indentation size of each line in the block is the same as the main indent. Here is an example:
+
+#+begin_src python :tangle no :noeval
+# Undesired indentation.
+def sum(
+        a: float,
+        b: float
+) -> float:
+    return a + b
+
+# Undesired indentation.
+def sum(
+    a: float,
+    b: float
+) -> float:
+    return a + b
+#+end_src
+
+The following variable controls this indentation:
+
+#+begin_src emacs-lisp
+(setq python-indent-def-block-scale 1)
+#+end_src
+
+* Org-mode
+=org-tags-column= specifies the column (in the buffer) in which tags are shown relative to the task. A negative value indicates right align which I prefer. Emacs Doom sets it to 0 by default which places the tags right after the task heading.
+
+#+begin_src emacs-lisp
+(after! org
+  (setq! org-tags-column -77))
+#+end_src
+
+As I use =org-roam= extensively for making notes at work and in life, it is convenient for me to define tasks in the relevant org file so that I can see all information about a topic in one place when needed. While all files in the =org-roam= database can be added to the =org-agenda=, it is not a scalable option. Instead, based on this [[https://d12frosted.io/posts/2021-01-16-task-management-with-roam-vol5.html][blog post]], a better solution is as follows:
++ When an =org-roam= file is opened or saved, check if it contains any =TODO= headings. If yes, add a tag called =project= to the file. If not, remove the =project= tag if it exists.
++ Every time we generate an =org-agenda=, first populate the files with the =project= tag and only pass them for generating the agenda.
+
+Along with =org-roam= files, I also have some custom files - =tickler.org= and =regulars.org= - that are also added to the list of =org-agenda= files.
+
+It is worth noting that this method will only generate agenda from a single =org-roam= database. In my case, it means that my agenda will either contain work-related tasks or personal project tasks.
+
+To get started, we need to load the =vulpea= package written by the author of the blog post above. It defines some of the functions that will be used in the upcoming code blocks.
+
+#+begin_src emacs-lisp
+(use-package! vulpea
+  :hook ((org-roam-db-autosync-mode . vulpea-db-autosync-enable)))
+#+end_src
+
+Next, we first turn off file tag inheritance for the tag named =project=.
+
+#+begin_src emacs-lisp
+(after! org
+  (add-to-list 'org-tags-exclude-from-inheritance "project"))
+#+end_src
+
+Next, we define a function that tells (using the Org Element API) if any headline in a file is a =TODO=.
+
+#+begin_src emacs-lisp
+(defun vulpea-project-p ()
+  "Return non-nil if current buffer has any todo entry.
+
+TODO entries marked as done are ignored, meaning the this
+function returns nil if current buffer contains only completed
+tasks."
+  (org-element-map                          ; (2)
+       (org-element-parse-buffer 'headline) ; (1)
+       'headline
+     (lambda (h)
+       (eq (org-element-property :todo-type h)
+           'todo))
+     nil 'first-match))
+#+end_src
+
+Next, we add a hook that is executed before opening an =org-roam= file or while saving it. It adds or removes the =project= tag from an org-roam file.
+
+#+begin_src emacs-lisp
+(add-hook 'find-file-hook #'vulpea-project-update-tag)
+(add-hook 'before-save-hook #'vulpea-project-update-tag)
+
+(defun vulpea-project-update-tag ()
+      "Update PROJECT tag in the current buffer."
+      (when (and (not (active-minibuffer-window))
+                 (vulpea-buffer-p))
+        (save-excursion
+          (goto-char (point-min))
+          (let* ((tags (vulpea-buffer-tags-get))
+                 (original-tags tags))
+            (if (vulpea-project-p)
+                (setq tags (cons "project" tags))
+              (setq tags (remove "project" tags)))
+
+            ;; cleanup duplicates
+            (setq tags (seq-uniq tags))
+
+            ;; update tags if changed
+            (when (or (seq-difference tags original-tags)
+                      (seq-difference original-tags tags))
+              (apply #'vulpea-buffer-tags-set tags))))))
+
+(defun vulpea-buffer-p ()
+  "Return non-nil if the currently visited buffer is a note."
+  (and buffer-file-name
+       (string-prefix-p
+        (expand-file-name (file-name-as-directory org-roam-directory))
+        (file-name-directory buffer-file-name))))
+#+end_src
+
+Now, we define a function that queries the open =org-roam= database for =TODO= items.
+
+#+begin_src emacs-lisp
+(defun vulpea-project-files ()
+  "Return a list of note files containing 'project' tag." ;
+  (seq-uniq
+   (seq-map
+    #'car
+    (org-roam-db-query
+     [:select [nodes:file]
+      :from tags
+      :left-join nodes
+      :on (= tags:node-id nodes:id)
+      :where (like tag (quote "%\"project\"%"))]))))
+#+end_src
+
+Finally, we provide the files to be used for generating the agenda.
+
+#+begin_src emacs-lisp
+(setq org-agenda-files-not-in-roam '((expand-file-name "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/ticklers.org")
+                                     (expand-file-name "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/regulars.org")))
+
+(setq org-agenda-files org-agenda-files-not-in-roam)
+#+end_src
+
+To get the latest agenda each time, a function is defined that updates the list of agenda files.
+
+#+begin_src emacs-lisp
+(defun vulpea-agenda-files-update (&rest _)
+  "Update the value of `org-agenda-files'."
+  (setq org-agenda-files (append (vulpea-project-files) org-agenda-files-not-in-roam)))
+
+  ;(push org-agenda-files-not-in-roam 'org-agenda-files))
+
+(advice-add 'org-agenda :before #'vulpea-agenda-files-update)
+(advice-add 'org-todo-list :before #'vulpea-agenda-files-update)
+#+end_src
