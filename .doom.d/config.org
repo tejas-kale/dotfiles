@@ -63,6 +63,12 @@ This is my Emacs configuration. It is meant to used with [[https://github.com/do
        auto-dark-light-theme 'doom-one-light)
 #+end_src
 
+* File search
+Dired is a convenient tool for navigating and performing operations on files and directories. Dirvish is a new package that enhances the experience of using Dired.
+
+#+begin_src emacs-lisp
+(dirvish-override-dired-mode)
+#+end_src
 * Programming
 ** Python
 Most of the functionality needed for converting Emacs to a Python IDE is provided by 3 packages - Projectile, LSP, and Pyvenv. Projectile allows us to easily navigate files and folders in our project and interact with them. Given a path, Projectile is smart enough to consider each folder in the path that is under version control (Git, Subversion, etc.) to be a separate folder. If a folder is not under version control but we want it to be considered as a project by Projectile (say an iCloud folder), we just need to create an empty =.projectile= file in the folder.

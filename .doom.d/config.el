@@ -33,6 +33,8 @@
 (setq! auto-dark-dark-theme 'doom-one
        auto-dark-light-theme 'doom-one-light)
 
+(dirvish-override-dired-mode)
+
 (setq
  projectile-project-search-path (list
                                  (expand-file-name "~/Code")
