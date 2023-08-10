@@ -12,7 +12,7 @@ This is my Emacs configuration. It is meant to used with [[https://github.com/do
 #+end_src
 
 #+begin_src emacs-lisp
-(setq doom-theme 'doom-one)
+(setq doom-theme 'doom-dracula)
 #+end_src
 
 #+begin_src emacs-lisp
@@ -57,10 +57,25 @@ This is my Emacs configuration. It is meant to used with [[https://github.com/do
          :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%b %d, %y (%a)>\n"))))
 #+end_src
 
+#+begin_src emacs-lisp
+(map! :after evil-easymotion
+      :map evilem-map
+      "G" #'avy-goto-line)
+#+end_src
 
 #+begin_src emacs-lisp
-(setq! auto-dark-dark-theme 'doom-one
-       auto-dark-light-theme 'doom-one-light)
+(display-time)
+#+end_src
+
+* Email
+
+* Evil
+Emacs Doom comes included with support for Vim keybindings using the =evil= package. Here, I make some customisations to suit my workflow:
++ Bind =avy-goto-line= which creates hints for every buffer line to =g s G=.
+#+begin_src emacs-lisp
+(map! :after evil-easymotion
+      :map evilem-map
+      "G" #'avy-goto-line)
 #+end_src
 
 * File search
@@ -69,6 +84,31 @@ Dired is a convenient tool for navigating and performing operations on files and
 #+begin_src emacs-lisp
 (dirvish-override-dired-mode)
 #+end_src
+* Jira
+I rely on the [[https://github.com/ahungry/org-jira][=org-jira=]] package for all Jira-related activities associated with my employer. The credentials for it are stored in my [[file:~/Code/dotfiles/.authinfo.gpg][=.authinfo.gpg=]] file. While the Jira username is my email address, the password is an API token that can be generated [[https://id.atlassian.com/manage-profile/security/api-tokens][here]].
+
+#+begin_src emacs-lisp
+(setq jiralib-url "https://relayr.atlassian.net")
+(defconst org-jira-progress-issue-flow
+  '(("To Do" . "Planned")
+    ("To Do" . "Feedback")
+    ("To Do" . "Will Not Do")
+    ("To Do" . "Blocked")
+    ("Planned" . "To Do")
+    ("Planned" . "Feedback")
+    ("Planned" . "Will Not Do")
+    ("Planned" . "Blocked")
+    ("Planned" . "In Progress")
+    ("In Progress" . "Feedback")
+    ("In Progress" . "Will Not Do")
+    ("In Progress" . "Blocked")
+    ("In Progress" . "In Review")
+    ("In Review" . "Feedback")
+    ("In Review" . "Will Not Do")
+    ("In Review" . "Blocked")
+    ("In Review" . "Done")))
+#+end_src
+
 * Programming
 ** Python
 Most of the functionality needed for converting Emacs to a Python IDE is provided by 3 packages - Projectile, LSP, and Pyvenv. Projectile allows us to easily navigate files and folders in our project and interact with them. Given a path, Projectile is smart enough to consider each folder in the path that is under version control (Git, Subversion, etc.) to be a separate folder. If a folder is not under version control but we want it to be considered as a project by Projectile (say an iCloud folder), we just need to create an empty =.projectile= file in the folder.
@@ -124,6 +164,11 @@ The following variable controls this indentation:
 
 #+begin_src emacs-lisp
 (setq python-indent-def-block-scale 1)
+#+end_src
+
+Configure LSP such that the documentation is not shown each time we hover or write a function/method/class.
+#+begin_src emacs-lisp
+(setq lsp-signature-auto-activate nil)
 #+end_src
 
 * Org-mode
@@ -249,4 +294,29 @@ To get the latest agenda each time, a function is defined that updates the list 
 (advice-add 'org-todo-list :before #'vulpea-agenda-files-update)
 #+end_src
 
-#+RESULTS:
+* Slack
+#+begin_src emacs-lisp :tangle no
+(use-package! slack
+  :init
+  (setq slack-buffer-emojify t)
+  (setq slack-prefer-current-team t)
+  (make-directory "/tmp/emacs-slack-images" t)
+  :bind (:map slack-mode-map
+              (("@" . slack-message-embed-mention)
+               ("#" . slack-message-embed-channel)))
+  :custom
+  (slack-image-file-directory "/tmp/emacs-slack-images")
+  :config
+  (slack-register-team
+   :name "relayr"
+   :default t
+   :token (auth-source-pick-first-password
+           :machine "relayr.slack.com"
+           :user "tejas.kale@relayr.io")
+   :cookie (auth-source-pick-first-password
+            :host "relayr.slack.com"
+            :user "tejas.kale@relyr.io^cookie")
+   :full-and-display-name t
+   )
+)
+#+end_src

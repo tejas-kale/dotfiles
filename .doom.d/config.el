@@ -3,7 +3,7 @@
 (setq user-full-name "Tejas Kale"
       user-mail-address "kaletejas2006@gmail.com")
 
-(setq doom-theme 'doom-one)
+(setq doom-theme 'doom-dracula)
 
 (setq display-line-numbers-type t)
 
@@ -30,10 +30,37 @@
         ("t" "with-timestamp" entry "* %<%I:%M %p>: %?"
          :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%b %d, %y (%a)>\n"))))
 
-(setq! auto-dark-dark-theme 'doom-one
-       auto-dark-light-theme 'doom-one-light)
+(map! :after evil-easymotion
+      :map evilem-map
+      "G" #'avy-goto-line)
+
+(display-time)
+
+(map! :after evil-easymotion
+      :map evilem-map
+      "G" #'avy-goto-line)
 
 (dirvish-override-dired-mode)
+
+(setq jiralib-url "https://relayr.atlassian.net")
+(defconst org-jira-progress-issue-flow
+  '(("To Do" . "Planned")
+    ("To Do" . "Feedback")
+    ("To Do" . "Will Not Do")
+    ("To Do" . "Blocked")
+    ("Planned" . "To Do")
+    ("Planned" . "Feedback")
+    ("Planned" . "Will Not Do")
+    ("Planned" . "Blocked")
+    ("Planned" . "In Progress")
+    ("In Progress" . "Feedback")
+    ("In Progress" . "Will Not Do")
+    ("In Progress" . "Blocked")
+    ("In Progress" . "In Review")
+    ("In Review" . "Feedback")
+    ("In Review" . "Will Not Do")
+    ("In Review" . "Blocked")
+    ("In Review" . "Done")))
 
 (setq
  projectile-project-search-path (list
@@ -53,6 +80,8 @@
   (setq dap-python-debugger 'debugpy))
 
 (setq python-indent-def-block-scale 1)
+
+(setq lsp-signature-auto-activate nil)
 
 (after! org
   (setq! org-tags-column -77))

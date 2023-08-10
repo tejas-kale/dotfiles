@@ -8,10 +8,9 @@
 
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;(package! some-package)
-(package! auto-dark)
-(package! git-link)
 (package! hackernews)
 (package! org-jira)
+(package! slack)
 (package! vulpea)
 
 ;; To install a package directly from a remote git repo, you must specify a
