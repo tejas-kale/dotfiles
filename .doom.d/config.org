@@ -64,6 +64,7 @@ This is my Emacs configuration. It is meant to used with [[https://github.com/do
 #+end_src
 
 #+begin_src emacs-lisp
+(setq display-time-format "%a %d %b %I:%M")
 (display-time)
 #+end_src
 

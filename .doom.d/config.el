@@ -34,6 +34,7 @@
       :map evilem-map
       "G" #'avy-goto-line)
 
+(setq display-time-format "%a %d %b %I:%M")
 (display-time)
 
 (map! :after evil-easymotion
