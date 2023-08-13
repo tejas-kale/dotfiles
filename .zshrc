@@ -109,6 +109,9 @@ export OPSKITPATH=/Users/kale.tejas/Code/opskit-cli-1.0.5-darwin-amd64
 # Emacs
 export PATH="$HOME/.emacs.d/bin:$PATH"
 
+# GPG tools
+export PATH="/usr/local/MacGPG2/bin:$PATH"
+
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # >>> conda initialize >>>

@@ -198,7 +198,7 @@
 
        :email
        (mu4e +org +gmail)
-       ;;notmuch
+       ;;(notmuch +org +afew)
        ;;(wanderlust +gmail)
 
        :app
