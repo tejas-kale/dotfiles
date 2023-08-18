@@ -387,7 +387,7 @@ Using the [[https://github.com/danielfm/smudge][Smudge]] package, we can control
 
 Using /Spotify Connect/, as a premium user, we can control playback on a different device. With =smudge-transport=, we configure it so that we can toggle playback even if it is running on our phone.
 
-On installation, I kept getting 401 error when calling =(global-smudge-remote-mode)=. It was possibly happening because the HTTP server was not getting started correctly. Restarting the laptop resolved the issue.
+On installation, I kept getting 401 error when calling =(global-smudge-remote-mode)=. It was possibly happening because the HTTP server was not getting started correctly. Restarting the laptop resolved the issue. In addition, it is important to comment =(global-smudge-remote-mode)= in the config if we have not executed the command once manually in an existing Emacs session. When we execute it manually, Spotify opens in the default browser thus establishing our credentials. Emacs cannot do it for some reason at startup.
 
 #+begin_src emacs-lisp
 (map! :leader
