@@ -12,7 +12,7 @@ This is my Emacs configuration. It is meant to used with [[https://github.com/do
 #+end_src
 
 #+begin_src emacs-lisp
-(setq doom-theme 'doom-dracula)
+(setq doom-theme 'doom-moonlight)
 #+end_src
 
 #+begin_src emacs-lisp
@@ -68,8 +68,16 @@ This is my Emacs configuration. It is meant to used with [[https://github.com/do
 (display-time)
 #+end_src
 
-* Email
+* Keybinding
+For the custom packages, all the keybindings will be available with the prefix =SPC e=.
 
+#+begin_src emacs-lisp
+(map! :leader
+      :desc "extras"
+      "e")
+#+end_src
+
+* Email
 * Evil
 Emacs Doom comes included with support for Vim keybindings using the =evil= package. Here, I make some customisations to suit my workflow:
 + Bind =avy-goto-line= which creates hints for every buffer line to =g s G=.
@@ -108,6 +116,14 @@ I rely on the [[https://github.com/ahungry/org-jira][=org-jira=]] package for al
     ("In Review" . "Will Not Do")
     ("In Review" . "Blocked")
     ("In Review" . "Done")))
+
+(map! :leader
+      (:prefix ("e j" . "jira")
+               "b" #'org-jira-browse-issue
+               "c" #'org-jira-create-issue
+               "g" #'org-jira-get-issues
+               "r" #'org-jira-refresh-issues-in-buffer
+               "s" #'org-jira-create-subtask))
 #+end_src
 
 * Programming
@@ -132,7 +148,6 @@ After we have written our code, it is a good idea to get a list of warnings and 
       :map python-mode-map
       :localleader
       (:prefix ("f" . "flycheck")
-       :desc "List errors"
        "l" #'flycheck-list-errors))
 #+end_src
 
@@ -170,6 +185,25 @@ The following variable controls this indentation:
 Configure LSP such that the documentation is not shown each time we hover or write a function/method/class.
 #+begin_src emacs-lisp
 (setq lsp-signature-auto-activate nil)
+#+end_src
+
+When in Python mode, I activate a specific virtual environment using =pyvenv=.
+
+#+begin_src emacs-lisp
+(map! :after python
+      :map python-mode-map
+      :localleader
+      (:prefix ("v" . "venv")
+       "a" #'pyvenv-activate))
+#+end_src
+
+** Jupyter
+I use the =ein= package to interact with Jupyter (formerly IPython) notebook.
+#+begin_src emacs-lisp
+(map! :leader
+      (:prefix ("e i" . "ipython")
+       "l" #'ein:notebooklist-open
+       "r" #'ein:run))
 #+end_src
 
 * Org-mode
@@ -295,6 +329,22 @@ To get the latest agenda each time, a function is defined that updates the list 
 (advice-add 'org-todo-list :before #'vulpea-agenda-files-update)
 #+end_src
 
+Using the =org-modern= package, we can modify the styling of Org mode buffers
+
+#+begin_src emacs-lisp
+(add-hook 'org-mode-hook #'org-modern-mode)
+(add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
+#+end_src
+
+* Search
+With the =howdoyou= package, one can search Stack Overflow and its sister websites inside Emacs. The query results are shown in an Org mode buffer.
+
+#+begin_src emacs-lisp
+(map! :leader
+      (:prefix ("e f" . "find")
+       "h" #'howdoyou-query))
+#+end_src
+
 * Slack
 #+begin_src emacs-lisp :tangle no
 (use-package! slack
@@ -320,4 +370,29 @@ To get the latest agenda each time, a function is defined that updates the list 
    :full-and-display-name t
    )
 )
+#+end_src
+
+* Spotify
+Using the [[https://github.com/danielfm/smudge][Smudge]] package, we can control Spotify using Emacs. In order to use the package, we need to [[https://developer.spotify.com/my-applications/#!/applications/create][create a Spotify app]] with the redirect URI set to =http://localhost:8080/smudge-api-callback=. Once the app creation is complete, we need to copy the client ID and secret. I have saved the secret in a =.gpg= file in my =pass= directory.
+
+#+begin_src emacs-lisp
+(use-package! smudge
+  :config
+  (setq! smudge-oauth2-client-id "01e3654bcee5437abcb921483d37cc4a")
+  (setq! smudge-oauth2-client-secret "979dc0ddbe544a709e9ea79f51949d33"); (shell-command-to-string "pass show spotify.com/emacsapp"))
+  (setq! smudge-transport 'connect)
+  (setq! smudge-player-status-refresh-interval 10)
+  (global-smudge-remote-mode))
+#+end_src
+
+Using /Spotify Connect/, as a premium user, we can control playback on a different device. With =smudge-transport=, we configure it so that we can toggle playback even if it is running on our phone.
+
+On installation, I kept getting 401 error when calling =(global-smudge-remote-mode)=. It was possibly happening because the HTTP server was not getting started correctly. Restarting the laptop resolved the issue.
+
+#+begin_src emacs-lisp
+(map! :leader
+      (:prefix ("e s" . "spotify")
+       "p" #'smudge-controller-toggle-play
+       "s" #'smudge-track-search
+       "f" #'smudge-playlist-search))
 #+end_src

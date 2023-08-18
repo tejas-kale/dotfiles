@@ -3,7 +3,7 @@
 (setq user-full-name "Tejas Kale"
       user-mail-address "kaletejas2006@gmail.com")
 
-(setq doom-theme 'doom-dracula)
+(setq doom-theme 'doom-moonlight)
 
 (setq display-line-numbers-type t)
 
@@ -37,6 +37,10 @@
 (setq display-time-format "%a %d %b %I:%M")
 (display-time)
 
+(map! :leader
+      :desc "extras"
+      "e")
+
 (map! :after evil-easymotion
       :map evilem-map
       "G" #'avy-goto-line)
@@ -63,6 +67,14 @@
     ("In Review" . "Blocked")
     ("In Review" . "Done")))
 
+(map! :leader
+      (:prefix ("e j" . "jira")
+               "b" #'org-jira-browse-issue
+               "c" #'org-jira-create-issue
+               "g" #'org-jira-get-issues
+               "r" #'org-jira-refresh-issues-in-buffer
+               "s" #'org-jira-create-subtask))
+
 (setq
  projectile-project-search-path (list
                                  (expand-file-name "~/Code")
@@ -74,7 +86,6 @@
       :map python-mode-map
       :localleader
       (:prefix ("f" . "flycheck")
-       :desc "List errors"
        "l" #'flycheck-list-errors))
 
 (after! dap-mode
@@ -83,6 +94,17 @@
 (setq python-indent-def-block-scale 1)
 
 (setq lsp-signature-auto-activate nil)
+
+(map! :after python
+      :map python-mode-map
+      :localleader
+      (:prefix ("v" . "venv")
+       "a" #'pyvenv-activate))
+
+(map! :leader
+      (:prefix ("e i" . "ipython")
+       "l" #'ein:notebooklist-open
+       "r" #'ein:run))
 
 (after! org
   (setq! org-tags-column -77))
@@ -165,3 +187,24 @@ tasks."
 
 (advice-add 'org-agenda :before #'vulpea-agenda-files-update)
 (advice-add 'org-todo-list :before #'vulpea-agenda-files-update)
+
+(add-hook 'org-mode-hook #'org-modern-mode)
+(add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
+
+(map! :leader
+      (:prefix ("e f" . "find")
+       "h" #'howdoyou-query))
+
+(use-package! smudge
+  :config
+  (setq! smudge-oauth2-client-id "01e3654bcee5437abcb921483d37cc4a")
+  (setq! smudge-oauth2-client-secret "979dc0ddbe544a709e9ea79f51949d33"); (shell-command-to-string "pass show spotify.com/emacsapp"))
+  (setq! smudge-transport 'connect)
+  (setq! smudge-player-status-refresh-interval 10)
+  (global-smudge-remote-mode))
+
+(map! :leader
+      (:prefix ("e s" . "spotify")
+       "p" #'smudge-controller-toggle-play
+       "s" #'smudge-track-search
+       "f" #'smudge-playlist-search))

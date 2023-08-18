@@ -8,10 +8,18 @@
 
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;(package! some-package)
+(package! dictcc)
 (package! hackernews)
+(package! howdoyou)
 (package! org-jira)
+(package! org-modern)
+(package! simple-httpd)
 (package! slack)
+(package! smudge)
 (package! vulpea)
+(package! yasnippet-radical-snippets
+  :recipe (:host github :repo "Xaldew/yasnippet-radical-snippets"
+           :files (:defaults "snippets" "yasnippet-radical-snippets.el")))
 
 ;; To install a package directly from a remote git repo, you must specify a
 ;; `:recipe'. You'll find documentation on what `:recipe' accepts here:
