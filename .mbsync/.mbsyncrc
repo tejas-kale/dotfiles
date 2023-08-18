@@ -1,0 +1,50 @@
+IMAPAccount tejas-posteo
+Host posteo.de
+Port 993
+User kaletejas@posteo.net
+PassCmd "gpg -q --for-your-eyes-only --no-tty -d ~/.mbsync/mbsyncpass-posteo.gpg"
+AuthMechs LOGIN
+SSLType IMAPS
+SSLVersions TLSv1.2
+
+IMAPStore tejas-posteo-remote
+Account tejas-posteo
+
+Maildirstore tejas-posteo-local
+Path ~/Maildir/tejas-posteo
+Inbox ~/Maildir/tejas-posteo/INBOX
+Subfolders Verbatim
+
+Channel tejas-posteo
+Far :tejas-posteo-remote:
+Near :tejas-posteo-local:
+Patterns * INBOX
+Create Both
+Expunge Both
+SyncState *
+
+#===========================================================#
+
+IMAPAccount tejas-gmail
+Host imap.gmail.com
+User kaletejas2006@gmail.com
+PassCmd "gpg -q --for-your-eyes-only --no-tty -d ~/.mbsync/mbsyncpass-gmail.gpg"
+AuthMechs LOGIN
+SSLType IMAPS
+SSLVersions TLSv1.2
+
+IMAPStore tejas-gmail-remote
+Account tejas-gmail
+
+Maildirstore tejas-gmail-local
+Path ~/Maildir/tejas-gmail
+Inbox ~/Maildir/tejas-gmail/INBOX
+Subfolders Verbatim
+
+Channel tejas-gmail
+Far :tejas-gmail-remote:
+Near :tejas-gmail-local:
+Patterns * INBOX
+Create Both
+Expunge Both
+SyncState *
