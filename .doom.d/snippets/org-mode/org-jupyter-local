@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: org-jupyter-local
+# key: jl
+# uuid: jl
+# --
+#+begin_src jupyter-python :session localhost
+`%`$0
+#+end_src
