@@ -64,7 +64,7 @@ This is my Emacs configuration. It is meant to used with [[https://github.com/do
 #+end_src
 
 #+begin_src emacs-lisp
-(setq display-time-format "%a %d %b %I:%M")
+(setq display-time-format "%a %d %b %H:%M")
 (display-time)
 #+end_src
 
@@ -78,6 +78,17 @@ For the custom packages, all the keybindings will be available with the prefix =
 #+end_src
 
 * Email
+#+begin_src emacs-lisp
+;; (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu/mu4e")
+(use-package! mu4e
+ :config
+ (setq mu4e-change-filenames-when-moving t)
+
+ (setq mu4e-update-interval (* 10 60))
+ (setq mu4e-get-mail-command "mbsync -a")
+ (setq mu4e-maildir "~/Maildir"))
+#+end_src
+
 * Evil
 Emacs Doom comes included with support for Vim keybindings using the =evil= package. Here, I make some customisations to suit my workflow:
 + Bind =avy-goto-line= which creates hints for every buffer line to =g s G=.
@@ -377,12 +388,12 @@ Using the [[https://github.com/danielfm/smudge][Smudge]] package, we can control
 
 #+begin_src emacs-lisp
 (use-package! smudge
-  :config
-  (setq! smudge-oauth2-client-id "01e3654bcee5437abcb921483d37cc4a")
-  (setq! smudge-oauth2-client-secret "979dc0ddbe544a709e9ea79f51949d33"); (shell-command-to-string "pass show spotify.com/emacsapp"))
-  (setq! smudge-transport 'connect)
-  (setq! smudge-player-status-refresh-interval 10)
-  (global-smudge-remote-mode))
+ :config
+ (setq! smudge-oauth2-client-id "01e3654bcee5437abcb921483d37cc4a")
+ (setq! smudge-oauth2-client-secret "979dc0ddbe544a709e9ea79f51949d33"); (shell-command-to-string "pass show spotify.com/emacsapp"))
+ (setq! smudge-transport 'connect)
+ (setq! smudge-player-status-refresh-interval 10)
+ (global-smudge-remote-mode))
 #+end_src
 
 Using /Spotify Connect/, as a premium user, we can control playback on a different device. With =smudge-transport=, we configure it so that we can toggle playback even if it is running on our phone.
@@ -391,8 +402,8 @@ On installation, I kept getting 401 error when calling =(global-smudge-remote-mo
 
 #+begin_src emacs-lisp
 (map! :leader
-      (:prefix ("e s" . "spotify")
-       "p" #'smudge-controller-toggle-play
-       "s" #'smudge-track-search
-       "f" #'smudge-playlist-search))
+     (:prefix ("e s" . "spotify")
+      "p" #'smudge-controller-toggle-play
+      "s" #'smudge-track-search
+      "f" #'smudge-playlist-search))
 #+end_src

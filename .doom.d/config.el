@@ -34,12 +34,21 @@
       :map evilem-map
       "G" #'avy-goto-line)
 
-(setq display-time-format "%a %d %b %I:%M")
+(setq display-time-format "%a %d %b %H:%M")
 (display-time)
 
 (map! :leader
       :desc "extras"
       "e")
+
+;; (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu/mu4e")
+(use-package! mu4e
+ :config
+ (setq mu4e-change-filenames-when-moving t)
+
+ (setq mu4e-update-interval (* 10 60))
+ (setq mu4e-get-mail-command "mbsync -a")
+ (setq mu4e-maildir "~/Maildir"))
 
 (map! :after evil-easymotion
       :map evilem-map
@@ -196,15 +205,15 @@ tasks."
        "h" #'howdoyou-query))
 
 (use-package! smudge
-  :config
-  (setq! smudge-oauth2-client-id "01e3654bcee5437abcb921483d37cc4a")
-  (setq! smudge-oauth2-client-secret "979dc0ddbe544a709e9ea79f51949d33"); (shell-command-to-string "pass show spotify.com/emacsapp"))
-  (setq! smudge-transport 'connect)
-  (setq! smudge-player-status-refresh-interval 10)
-  (global-smudge-remote-mode))
+ :config
+ (setq! smudge-oauth2-client-id "01e3654bcee5437abcb921483d37cc4a")
+ (setq! smudge-oauth2-client-secret "979dc0ddbe544a709e9ea79f51949d33"); (shell-command-to-string "pass show spotify.com/emacsapp"))
+ (setq! smudge-transport 'connect)
+ (setq! smudge-player-status-refresh-interval 10)
+ (global-smudge-remote-mode))
 
 (map! :leader
-      (:prefix ("e s" . "spotify")
-       "p" #'smudge-controller-toggle-play
-       "s" #'smudge-track-search
-       "f" #'smudge-playlist-search))
+     (:prefix ("e s" . "spotify")
+      "p" #'smudge-controller-toggle-play
+      "s" #'smudge-track-search
+      "f" #'smudge-playlist-search))
