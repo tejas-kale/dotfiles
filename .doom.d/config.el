@@ -47,7 +47,7 @@
  (setq mu4e-change-filenames-when-moving t)
 
  (setq mu4e-update-interval (* 10 60))
- (setq mu4e-get-mail-command "mbsync -a")
+ (setq mu4e-get-mail-command (concat "mbsync -c " (expand-file-name "~/.mbsync/.mbsyncrc") " -a"))
  (setq mu4e-maildir "~/Maildir"))
 
 (map! :after evil-easymotion
