@@ -209,11 +209,12 @@ tasks."
  (setq! smudge-oauth2-client-id "01e3654bcee5437abcb921483d37cc4a")
  (setq! smudge-oauth2-client-secret "979dc0ddbe544a709e9ea79f51949d33"); (shell-command-to-string "pass show spotify.com/emacsapp"))
  (setq! smudge-transport 'connect)
- (setq! smudge-player-status-refresh-interval 10)
- (global-smudge-remote-mode))
+ (setq! smudge-player-status-refresh-interval 10))
+ ;(global-smudge-remote-mode))
 
 (map! :leader
      (:prefix ("e s" . "spotify")
+      "f" #'smudge-playlist-search
+      "g" #'global-smudge-remote-mode
       "p" #'smudge-controller-toggle-play
-      "s" #'smudge-track-search
-      "f" #'smudge-playlist-search))
+      "s" #'smudge-track-search))
