@@ -17,10 +17,6 @@
 (package! slack)
 (package! smudge)
 (package! vulpea)
-;; TODO: Do I still need this package?
-(package! yasnippet-radical-snippets
-  :recipe (:host github :repo "Xaldew/yasnippet-radical-snippets"
-           :files (:defaults "snippets" "yasnippet-radical-snippets.el")))
 
 ;; To install a package directly from a remote git repo, you must specify a
 ;; `:recipe'. You'll find documentation on what `:recipe' accepts here:
@@ -34,6 +30,10 @@
 ;(package! this-package
 ;  :recipe (:host github :repo "username/repo"
 ;           :files ("some-file.el" "src/lisp/*.el")))
+;; TODO: Do I still need this package?
+(package! yasnippet-radical-snippets
+  :recipe (:host github :repo "Xaldew/yasnippet-radical-snippets"
+           :files (:defaults "snippets" "yasnippet-radical-snippets.el")))
 
 ;; If you'd like to disable a package included with Doom, you can do so here
 ;; with the `:disable' property:

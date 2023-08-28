@@ -9,6 +9,8 @@
 
 (setq org-directory "~/Documents/org")
 
+(setenv "PATH" (concat "/Library/TeX/texbin/" ":" (getenv "PATH")))
+
 (setq
  doom-font (font-spec :family "Fira Code" :size 16)
  doom-big-font (font-spec :family "Fira Code" :size 28)
@@ -36,6 +38,23 @@
 
 (setq display-time-format "%a %d %b %H:%M")
 (display-time)
+
+(after! org
+  (use-package! ox-extra
+    :config
+    (ox-extras-activate '(latex-header-blocks ignore-headlines))
+    (setq org-latex-pdf-process
+          '("pdflatex -interaction nonstopmode -output-directory %o %f"
+            "bibtex %b"
+            "pdflatex -interaction nonstopmode -output-directory %o %f"
+            "pdflatex -interaction nonstopmode -output-directory %o %f"))
+    (setq org-latex-with-hyperref nil)
+
+    (setq org-latex-logfiles-extensions
+          (quote ("lof" "lot" "tex~" "aux" "idx" "log" "out" "toc" "nav" "snm" "vrb" "dvi" "fdb_latexmk" "blg" "brf" "fls" "entoc" "ps" "spl" "bbl" "xmpi" "run.xml" "bcf" "acn" "acr" "alg" "glg" "gls" "ist")))
+
+    (unless (boundp 'org-latex-classes)
+      (setq org-latex-classes nil))))
 
 (map! :leader
       :desc "extras"
@@ -128,10 +147,9 @@
 (after! org
   (setq! org-tags-column -77))
 
-(use-package! vulpea
-  :hook ((org-roam-db-autosync-mode . vulpea-db-autosync-enable)))
-
 (after! org
+  (require 'vulpea)
+  (add-hook 'org-roam-db-autosync-mode #'vulpea-db-autosync-enable)
   (add-to-list 'org-tags-exclude-from-inheritance "project"))
 
 (defun vulpea-project-p ()
