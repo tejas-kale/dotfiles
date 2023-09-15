@@ -161,6 +161,9 @@
        "l" #'ein:notebooklist-open
        "r" #'ein:run))
 
+(after! projectile
+  (add-to-list 'projectile-globally-ignored-directories "node_modules"))
+
 (after! org
   (setq! org-tags-column -77))
 
@@ -246,6 +249,11 @@ tasks."
 (add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
 
 (setq org-log-into-drawer t)
+
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "PROJ(p)" "LOOP(r)" "STRT(s)" "WAIT(w!)" "HOLD(h)" "IDEA(i)" "|" "DONE(d!)" "KILL(k!)")
+        (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
+        (sequence "|" "OKAY(o)" "YES(y)" "NO(n)")))
 
 (map! :leader
       (:prefix ("e f" . "find")

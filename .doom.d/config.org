@@ -191,6 +191,8 @@ If the project directory names are long, the default =doom-modeline= configurati
 (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
 #+end_src
 
+In order to render the icons correctly in the modeline, run the command =nerd-icons-install-fonts= and restart Emacs.
+
 * Programming
 ** Python
 Most of the functionality needed for converting Emacs to a Python IDE is provided by 3 packages - Projectile, LSP, and Pyvenv. Projectile allows us to easily navigate files and folders in our project and interact with them. Given a path, Projectile is smart enough to consider each folder in the path that is under version control (Git, Subversion, etc.) to be a separate folder. If a folder is not under version control but we want it to be considered as a project by Projectile (say an iCloud folder), we just need to create an empty =.projectile= file in the folder.
@@ -280,6 +282,14 @@ I use the =ein= package to interact with Jupyter (formerly IPython) notebook.
       (:prefix ("e i" . "ipython")
        "l" #'ein:notebooklist-open
        "r" #'ein:run))
+#+end_src
+
+* Projectile
+Globally ignore the specified directories.
+
+#+begin_src emacs-lisp
+(after! projectile
+  (add-to-list 'projectile-globally-ignored-directories "node_modules"))
 #+end_src
 
 * Org-mode
@@ -414,6 +424,17 @@ Log TODO state changes inside the =LOGBOOK= drawer.
 #+begin_src emacs-lisp
 (setq org-log-into-drawer t)
 #+end_src
+
+Redefine keywords to log state from =TODO= to =WAIT=, =DONE=, and =KILL= by adding ~!~ next to the key.
+
+#+begin_src emacs-lisp
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "PROJ(p)" "LOOP(r)" "STRT(s)" "WAIT(w!)" "HOLD(h)" "IDEA(i)" "|" "DONE(d!)" "KILL(k!)")
+        (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
+        (sequence "|" "OKAY(o)" "YES(y)" "NO(n)")))
+#+end_src
+
+
 
 * Search
 With the =howdoyou= package, one can search Stack Overflow and its sister websites inside Emacs. The query results are shown in an Org mode buffer.
