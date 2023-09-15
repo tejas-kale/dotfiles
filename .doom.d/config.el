@@ -85,6 +85,14 @@
 
 (dirvish-override-dired-mode)
 
+(map! :leader
+      :map smerge-mode-map
+      (:prefix ("e m" . "smerge")
+               "m" #'smerge-keep-mine
+               "n" #'smerge-next
+               "o" #'smerge-keep-other
+               "p" #'smerge-prev))
+
 (setq jiralib-url "https://relayr.atlassian.net")
 (defconst org-jira-progress-issue-flow
   '(("To Do" . "Planned")
@@ -113,6 +121,8 @@
                "r" #'org-jira-refresh-issues-in-buffer
                "s" #'org-jira-create-subtask))
 
+(setq doom-modeline-buffer-file-name-style 'truncate-with-project)
+
 (setq
  projectile-project-search-path (list
                                  (expand-file-name "~/Code")
@@ -138,6 +148,13 @@
       :localleader
       (:prefix ("v" . "venv")
        "a" #'pyvenv-activate))
+
+(setq lsp-pylsp-plugins-flake8-enabled nil)
+(setq lsp-pylsp-plugins-autopep8-enabled nil)
+(setq lsp-pylsp-plugins-pyflakes-enabled nil)
+(setq lsp-pylsp-plugins-pylint-enabled t)
+
+(add-hook! 'python-mode-hook (setq flycheck-checker 'python-pylint))
 
 (map! :leader
       (:prefix ("e i" . "ipython")
@@ -227,6 +244,8 @@ tasks."
 
 (add-hook 'org-mode-hook #'org-modern-mode)
 (add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
+
+(setq org-log-into-drawer t)
 
 (map! :leader
       (:prefix ("e f" . "find")

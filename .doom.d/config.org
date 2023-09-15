@@ -137,6 +137,20 @@ Dired is a convenient tool for navigating and performing operations on files and
 #+begin_src emacs-lisp
 (dirvish-override-dired-mode)
 #+end_src
+
+* Git
+Magit passes us to Smerge for resolving conflicts.
+
+#+begin_src emacs-lisp
+(map! :leader
+      :map smerge-mode-map
+      (:prefix ("e m" . "smerge")
+               "m" #'smerge-keep-mine
+               "n" #'smerge-next
+               "o" #'smerge-keep-other
+               "p" #'smerge-prev))
+#+end_src
+
 * Jira
 I rely on the [[https://github.com/ahungry/org-jira][=org-jira=]] package for all Jira-related activities associated with my employer. The credentials for it are stored in my [[file:~/Code/dotfiles/.authinfo.gpg][=.authinfo.gpg=]] file. While the Jira username is my email address, the password is an API token that can be generated [[https://id.atlassian.com/manage-profile/security/api-tokens][here]].
 
@@ -168,6 +182,13 @@ I rely on the [[https://github.com/ahungry/org-jira][=org-jira=]] package for al
                "g" #'org-jira-get-issues
                "r" #'org-jira-refresh-issues-in-buffer
                "s" #'org-jira-create-subtask))
+#+end_src
+
+* Modeline
+If the project directory names are long, the default =doom-modeline= configuration leads to trimming of the right-side of the modeline. We prevent this by making =doom-modeline= shorten intermediate directory names from the project root.
+
+#+begin_src emacs-lisp
+(setq doom-modeline-buffer-file-name-style 'truncate-with-project)
 #+end_src
 
 * Programming
@@ -239,6 +260,17 @@ When in Python mode, I activate a specific virtual environment using =pyvenv=.
       :localleader
       (:prefix ("v" . "venv")
        "a" #'pyvenv-activate))
+#+end_src
+
+Use =pylint= as the linter instead of LSP's default.
+
+#+begin_src emacs-lisp
+(setq lsp-pylsp-plugins-flake8-enabled nil)
+(setq lsp-pylsp-plugins-autopep8-enabled nil)
+(setq lsp-pylsp-plugins-pyflakes-enabled nil)
+(setq lsp-pylsp-plugins-pylint-enabled t)
+
+(add-hook! 'python-mode-hook (setq flycheck-checker 'python-pylint))
 #+end_src
 
 ** Jupyter
@@ -375,6 +407,12 @@ Using the =org-modern= package, we can modify the styling of Org mode buffers
 #+begin_src emacs-lisp
 (add-hook 'org-mode-hook #'org-modern-mode)
 (add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
+#+end_src
+
+Log TODO state changes inside the =LOGBOOK= drawer.
+
+#+begin_src emacs-lisp
+(setq org-log-into-drawer t)
 #+end_src
 
 * Search
