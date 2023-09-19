@@ -42,7 +42,8 @@ This is my Emacs configuration. It is meant to used with [[https://github.com/do
 
 #+begin_src emacs-lisp
 (with-eval-after-load 'lsp-mode
-  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\venv\\'"))
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\venv\\'")
+  (add-to-list 'lsp-file-watch-ignored-directories "/Users/kale.tejas/Code/skyler-analytics-sandbox"))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -470,30 +471,4 @@ With the =howdoyou= package, one can search Stack Overflow and its sister websit
    :full-and-display-name t
    )
 )
-#+end_src
-
-* Spotify
-Using the [[https://github.com/danielfm/smudge][Smudge]] package, we can control Spotify using Emacs. In order to use the package, we need to [[https://developer.spotify.com/my-applications/#!/applications/create][create a Spotify app]] with the redirect URI set to =http://localhost:8080/smudge-api-callback=. Once the app creation is complete, we need to copy the client ID and secret. I have saved the secret in a =.gpg= file in my =pass= directory.
-
-#+begin_src emacs-lisp
-(use-package! smudge
- :config
- (setq! smudge-oauth2-client-id "01e3654bcee5437abcb921483d37cc4a")
- (setq! smudge-oauth2-client-secret "979dc0ddbe544a709e9ea79f51949d33"); (shell-command-to-string "pass show spotify.com/emacsapp"))
- (setq! smudge-transport 'connect)
- (setq! smudge-player-status-refresh-interval 10))
- ;(global-smudge-remote-mode))
-#+end_src
-
-Using /Spotify Connect/, as a premium user, we can control playback on a different device. With =smudge-transport=, we configure it so that we can toggle playback even if it is running on our phone.
-
-On installation, I kept getting 401 error when calling =(global-smudge-remote-mode)=. It was possibly happening because the HTTP server was not getting started correctly. Restarting the laptop resolved the issue. In addition, it is important to comment =(global-smudge-remote-mode)= in the config if we have not executed the command once manually in an existing Emacs session. When we execute it manually, Spotify opens in the default browser thus establishing our credentials. Emacs cannot do it for some reason at startup.
-
-#+begin_src emacs-lisp
-(map! :leader
-     (:prefix ("e s" . "spotify")
-      "f" #'smudge-playlist-search
-      "g" #'global-smudge-remote-mode
-      "p" #'smudge-controller-toggle-play
-      "s" #'smudge-track-search))
 #+end_src
